@@ -5,13 +5,13 @@ const { generateBookingReference, calculateRentalDays, calculateRentalCost } = r
 
 /**
  * POST /api/bookings
- * Create a new booking with proper availability check
+ * Create a new booking with proper availability check and pricing integrity
  */
 const create = async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return error(res, 'Validation failed', 400, errors.array());
+      return error(res, 'Validation failed: ' + errors.array().map((e) => e.msg).join(', '), 400, errors.array());
     }
 
     const {
@@ -28,7 +28,7 @@ const create = async (req, res) => {
     // Get customer_id for the logged-in user
     const [customers] = await pool.query('SELECT id FROM customers WHERE user_id = ?', [req.user.id]);
     if (customers.length === 0) {
-      return error(res, 'Customer profile not found. Please complete your profile.', 404);
+      return error(res, 'Customer profile not found. Please complete your registration profile.', 404);
     }
     const customer_id = customers[0].id;
 
@@ -44,13 +44,9 @@ const create = async (req, res) => {
       return error(res, 'Return datetime must be after pickup datetime.', 400);
     }
 
-    if (pickupDate < new Date()) {
-      return error(res, 'Pickup datetime cannot be in the past.', 400);
-    }
-
     // Fetch vehicle
     const [vehicles] = await pool.query(
-      'SELECT id, daily_rate, status FROM vehicles WHERE id = ?',
+      'SELECT id, name, brand, model, daily_rate, status, branch_id FROM vehicles WHERE id = ?',
       [vehicle_id]
     );
     if (vehicles.length === 0) {
@@ -59,11 +55,11 @@ const create = async (req, res) => {
 
     const vehicle = vehicles[0];
 
-    if (vehicle.status === 'Inactive') {
-      return error(res, 'This vehicle is not available for booking.', 400);
+    if (vehicle.status === 'Inactive' || vehicle.status === 'Maintenance') {
+      return error(res, `This vehicle is currently ${vehicle.status.toLowerCase()} and cannot be booked.`, 400);
     }
 
-    // Check for overlapping bookings (the required SQL)
+    // Check for overlapping bookings
     const [overlapping] = await pool.query(
       `SELECT id FROM bookings
        WHERE vehicle_id = ?
@@ -75,54 +71,54 @@ const create = async (req, res) => {
     if (overlapping.length > 0) {
       return error(
         res,
-        'Vehicle is not available for the selected dates. Please choose different dates.',
+        'Vehicle is not available for the selected dates. Please choose different dates or another vehicle.',
         409
       );
     }
 
+    // Security: Disallow arbitrary client discounts for standard customers
+    const userRole = (req.user?.role || '').toLowerCase();
+    const isStaff = ['admin', 'manager', 'agent'].includes(userRole);
+    const appliedDiscount = isStaff ? (parseFloat(discount) || 0) : 0;
+    const appliedAdditional = parseFloat(additional_charges) || 0;
+
     // Calculate cost
     const days = calculateRentalDays(pickup_datetime, return_datetime);
-    const costBreakdown = calculateRentalCost(days, vehicle.daily_rate, discount, additional_charges);
+    const costBreakdown = calculateRentalCost(days, vehicle.daily_rate, appliedDiscount, appliedAdditional);
     const bookingReference = generateBookingReference();
 
-    // Validate branches exist
-    if (pickup_branch_id) {
-      const [pb] = await pool.query('SELECT id FROM branches WHERE id = ?', [pickup_branch_id]);
-      if (pb.length === 0) return error(res, 'Pickup branch not found.', 404);
-    }
-    if (return_branch_id) {
-      const [rb] = await pool.query('SELECT id FROM branches WHERE id = ?', [return_branch_id]);
-      if (rb.length === 0) return error(res, 'Return branch not found.', 404);
-    }
+    const actualPickupBranch = pickup_branch_id || vehicle.branch_id;
+    const actualReturnBranch = return_branch_id || vehicle.branch_id;
 
-    // Create booking
+    // Create booking adhering strictly to schema.sql
     const [result] = await pool.query(
       `INSERT INTO bookings
         (booking_reference, customer_id, vehicle_id, pickup_branch_id, return_branch_id,
-         pickup_datetime, return_datetime, rental_days, daily_rate, subtotal,
-         discount, additional_charges, total_amount, status, notes, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?, NOW(), NOW())`,
+         pickup_datetime, return_datetime, status, total_days, subtotal,
+         discount, additional_charges, total_amount, notes, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending', ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         bookingReference,
         customer_id,
         vehicle_id,
-        pickup_branch_id || null,
-        return_branch_id || null,
+        actualPickupBranch,
+        actualReturnBranch,
         pickup_datetime,
         return_datetime,
         days,
-        vehicle.daily_rate,
         costBreakdown.subtotal,
-        costBreakdown.discount,
-        costBreakdown.additionalCharges,
+        appliedDiscount,
+        appliedAdditional,
         costBreakdown.total,
         notes || null,
       ]
     );
 
     const [newBooking] = await pool.query(
-      `SELECT bk.*, v.make, v.model, v.registration_number,
-              pb.name AS pickup_branch_name, rb.name AS return_branch_name
+      `SELECT bk.*,
+              v.name AS vehicle_name, v.brand, v.model, v.vehicle_id, v.image_url,
+              pb.name AS pickup_branch_name, pb.city AS pickup_city,
+              rb.name AS return_branch_name, rb.city AS return_city
        FROM bookings bk
        LEFT JOIN vehicles v ON v.id = bk.vehicle_id
        LEFT JOIN branches pb ON pb.id = bk.pickup_branch_id
@@ -131,21 +127,20 @@ const create = async (req, res) => {
       [result.insertId]
     );
 
-    // Create notification for admin
+    // Notify staff
     await pool.query(
-      `INSERT INTO notifications (user_id, title, message, type, reference_id, reference_type, created_at)
-       SELECT u.id, 'New Booking Created', ?, 'booking', ?, 'booking', NOW()
-       FROM users u WHERE u.role IN ('admin', 'staff')`,
-      [
-        `New booking ${bookingReference} created by customer.`,
-        result.insertId,
-      ]
-    ).catch(() => {}); // Non-critical
+      `INSERT INTO notifications (user_id, title, message, type, created_at)
+       SELECT u.id, 'New Booking Created', ?, 'Booking', NOW()
+       FROM users u
+       JOIN roles r ON r.id = u.role_id
+       WHERE r.name IN ('Admin', 'Manager')`,
+      [`New booking ${bookingReference} created for ${vehicle.name}.`]
+    ).catch(() => {});
 
     return success(res, newBooking[0], 'Booking created successfully.', 201);
   } catch (err) {
     console.error('Booking create error:', err);
-    return error(res, 'Failed to create booking.', 500);
+    return error(res, 'Failed to create booking: ' + err.message, 500);
   }
 };
 
@@ -180,14 +175,17 @@ const getAll = async (req, res) => {
     if (from_date) { conditions.push('DATE(bk.pickup_datetime) >= ?'); params.push(from_date); }
     if (to_date) { conditions.push('DATE(bk.pickup_datetime) <= ?'); params.push(to_date); }
     if (search) {
-      conditions.push('(bk.booking_reference LIKE ? OR c.name LIKE ? OR v.make LIKE ? OR v.model LIKE ?)');
+      conditions.push(
+        "(bk.booking_reference LIKE ? OR CONCAT(c.first_name, ' ', c.last_name) LIKE ? OR v.name LIKE ? OR v.vehicle_id LIKE ?)"
+      );
       params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
     }
 
     const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
     const [countResult] = await pool.query(
-      `SELECT COUNT(*) AS total FROM bookings bk
+      `SELECT COUNT(*) AS total
+       FROM bookings bk
        LEFT JOIN customers c ON c.id = bk.customer_id
        LEFT JOIN vehicles v ON v.id = bk.vehicle_id
        ${whereClause}`,
@@ -196,13 +194,16 @@ const getAll = async (req, res) => {
     const total = countResult[0].total;
 
     const [bookings] = await pool.query(
-      `SELECT bk.*, c.name AS customer_name, c.email AS customer_email, c.phone AS customer_phone,
-              v.make, v.model, v.registration_number, v.image_url,
+      `SELECT bk.*,
+              CONCAT(c.first_name, ' ', c.last_name) AS customer_name,
+              u.email AS customer_email, c.phone AS customer_phone,
+              v.name AS vehicle_name, v.brand, v.model, v.vehicle_id, v.image_url,
               vc.name AS category_name,
               pb.name AS pickup_branch_name, pb.city AS pickup_city,
               rb.name AS return_branch_name, rb.city AS return_city
        FROM bookings bk
        LEFT JOIN customers c ON c.id = bk.customer_id
+       LEFT JOIN users u ON u.id = c.user_id
        LEFT JOIN vehicles v ON v.id = bk.vehicle_id
        LEFT JOIN vehicle_categories vc ON vc.id = v.category_id
        LEFT JOIN branches pb ON pb.id = bk.pickup_branch_id
@@ -216,7 +217,7 @@ const getAll = async (req, res) => {
     return paginated(res, bookings, total, page, limit);
   } catch (err) {
     console.error('Booking getAll error:', err);
-    return error(res, 'Failed to fetch bookings.', 500);
+    return error(res, 'Failed to fetch bookings: ' + err.message, 500);
   }
 };
 
@@ -226,19 +227,25 @@ const getAll = async (req, res) => {
 const getById = async (req, res) => {
   try {
     const [bookings] = await pool.query(
-      `SELECT bk.*, c.name AS customer_name, c.email AS customer_email, c.phone AS customer_phone,
-              c.license_number, c.address AS customer_address,
-              v.make, v.model, v.registration_number, v.daily_rate AS vehicle_daily_rate,
-              v.fuel_type, v.transmission, v.color, v.image_url,
+      `SELECT bk.*,
+              CONCAT(c.first_name, ' ', c.last_name) AS customer_name,
+              u.email AS customer_email, c.phone AS customer_phone,
+              c.driving_license AS license_number, c.address AS customer_address,
+              v.name AS vehicle_name, v.brand, v.model, v.vehicle_id,
+              v.daily_rate AS vehicle_daily_rate, v.fuel_type, v.transmission,
+              v.color, v.image_url,
               vc.name AS category_name,
               pb.name AS pickup_branch_name, pb.city AS pickup_city, pb.address AS pickup_address,
-              rb.name AS return_branch_name, rb.city AS return_city, rb.address AS return_address
+              rb.name AS return_branch_name, rb.city AS return_city, rb.address AS return_address,
+              inv.id AS invoice_id, inv.payment_status AS invoice_payment_status
        FROM bookings bk
        LEFT JOIN customers c ON c.id = bk.customer_id
+       LEFT JOIN users u ON u.id = c.user_id
        LEFT JOIN vehicles v ON v.id = bk.vehicle_id
        LEFT JOIN vehicle_categories vc ON vc.id = v.category_id
        LEFT JOIN branches pb ON pb.id = bk.pickup_branch_id
        LEFT JOIN branches rb ON rb.id = bk.return_branch_id
+       LEFT JOIN invoices inv ON inv.booking_id = bk.id
        WHERE bk.id = ?`,
       [req.params.id]
     );
@@ -247,24 +254,26 @@ const getById = async (req, res) => {
       return error(res, 'Booking not found.', 404);
     }
 
-    // Check authorization: admin/staff can see all, customer can only see own
     const booking = bookings[0];
-    if (req.user.role === 'customer') {
+    const userRole = (req.user?.role || '').toLowerCase();
+
+    // Secure Authorization: customers can only view their own booking
+    if (!['admin', 'manager', 'agent'].includes(userRole)) {
       const [own] = await pool.query('SELECT id FROM customers WHERE user_id = ?', [req.user.id]);
       if (own.length === 0 || own[0].id !== booking.customer_id) {
-        return error(res, 'Access denied.', 403);
+        return error(res, 'Access denied. You can only view your own bookings.', 403);
       }
     }
 
     return success(res, booking);
   } catch (err) {
     console.error('Booking getById error:', err);
-    return error(res, 'Failed to fetch booking.', 500);
+    return error(res, 'Failed to fetch booking: ' + err.message, 500);
   }
 };
 
 /**
- * PUT /api/bookings/:id/confirm (admin)
+ * PUT /api/bookings/:id/confirm (admin/manager/agent)
  */
 const confirm = async (req, res) => {
   try {
@@ -288,12 +297,11 @@ const confirm = async (req, res) => {
 
     // Notify customer
     await pool.query(
-      `INSERT INTO notifications (user_id, title, message, type, reference_id, reference_type, created_at)
-       SELECT u.id, 'Booking Confirmed', ?, 'booking', ?, 'booking', NOW()
+      `INSERT INTO notifications (user_id, title, message, type, created_at)
+       SELECT u.id, 'Booking Confirmed', ?, 'Booking', NOW()
        FROM customers c JOIN users u ON u.id = c.user_id WHERE c.id = ?`,
       [
-        `Your booking ${booking.booking_reference} has been confirmed!`,
-        bookingId,
+        `Your reservation ${booking.booking_reference} has been confirmed!`,
         booking.customer_id,
       ]
     ).catch(() => {});
@@ -303,7 +311,7 @@ const confirm = async (req, res) => {
     return success(res, updated[0], 'Booking confirmed successfully.');
   } catch (err) {
     console.error('Booking confirm error:', err);
-    return error(res, 'Failed to confirm booking.', 500);
+    return error(res, 'Failed to confirm booking: ' + err.message, 500);
   }
 };
 
@@ -320,9 +328,10 @@ const cancel = async (req, res) => {
     }
 
     const booking = bookings[0];
+    const userRole = (req.user?.role || '').toLowerCase();
 
-    // Customers can only cancel their own bookings
-    if (req.user.role === 'customer') {
+    // Secure Authorization: Customers can only cancel their own bookings
+    if (!['admin', 'manager', 'agent'].includes(userRole)) {
       const [own] = await pool.query('SELECT id FROM customers WHERE user_id = ?', [req.user.id]);
       if (own.length === 0 || own[0].id !== booking.customer_id) {
         return error(res, 'You can only cancel your own bookings.', 403);
@@ -330,19 +339,27 @@ const cancel = async (req, res) => {
     }
 
     if (!['Pending', 'Confirmed'].includes(booking.status)) {
-      return error(res, `Booking cannot be cancelled. Current status: ${booking.status}`, 400);
+      return error(res, `Booking cannot be cancelled. Current status is ${booking.status}.`, 400);
     }
 
-    const { cancellation_reason } = req.body;
+    const reason = req.body.cancellation_reason || req.body.reason || 'Cancelled by customer';
+    const updatedNotes = booking.notes
+      ? `${booking.notes} [Cancelled: ${reason}]`
+      : `[Cancelled: ${reason}]`;
 
     await pool.query(
       `UPDATE bookings SET
         status = 'Cancelled',
-        cancellation_reason = ?,
-        cancelled_at = NOW(),
+        notes = ?,
         updated_at = NOW()
        WHERE id = ?`,
-      [cancellation_reason || null, bookingId]
+      [updatedNotes, bookingId]
+    );
+
+    // Free up vehicle if it was reserved
+    await pool.query(
+      "UPDATE vehicles SET status = 'Available', updated_at = NOW() WHERE id = ? AND status = 'Reserved'",
+      [booking.vehicle_id]
     );
 
     const [updated] = await pool.query('SELECT * FROM bookings WHERE id = ?', [bookingId]);
@@ -350,7 +367,7 @@ const cancel = async (req, res) => {
     return success(res, updated[0], 'Booking cancelled successfully.');
   } catch (err) {
     console.error('Booking cancel error:', err);
-    return error(res, 'Failed to cancel booking.', 500);
+    return error(res, 'Failed to cancel booking: ' + err.message, 500);
   }
 };
 
@@ -382,7 +399,8 @@ const getMyBookings = async (req, res) => {
     const total = countResult[0].total;
 
     const [bookings] = await pool.query(
-      `SELECT bk.*, v.make, v.model, v.registration_number, v.image_url,
+      `SELECT bk.*,
+              v.name AS vehicle_name, v.brand, v.model, v.vehicle_id, v.image_url,
               vc.name AS category_name,
               pb.name AS pickup_branch_name, pb.city AS pickup_city,
               rb.name AS return_branch_name, rb.city AS return_city
@@ -400,7 +418,7 @@ const getMyBookings = async (req, res) => {
     return paginated(res, bookings, total, page, limit);
   } catch (err) {
     console.error('getMyBookings error:', err);
-    return error(res, 'Failed to fetch your bookings.', 500);
+    return error(res, 'Failed to fetch your bookings: ' + err.message, 500);
   }
 };
 

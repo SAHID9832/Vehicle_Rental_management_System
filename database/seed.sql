@@ -16,33 +16,28 @@ SET @SEED_MODE = 1;
 -- 1. ROLES
 -- ==============================================================
 INSERT INTO roles (id, name, description, created_at) VALUES
-(1, 'Admin',    'Full system access – manage all resources, users, and configuration',      '2024-01-01 09:00:00'),
-(2, 'Manager',  'Branch-level management – vehicles, bookings, staff oversight',            '2024-01-01 09:00:00'),
-(3, 'Agent',    'Front-desk agent – create bookings, process rentals and payments',         '2024-01-01 09:00:00'),
-(4, 'Customer', 'Registered customer – book vehicles and manage own rentals',               '2024-01-01 09:00:00');
+(1, 'Admin',    'Full system & web administrator access – manages all resources, fleet, users, and configuration', '2024-01-01 09:00:00'),
+(2, 'Customer', 'Registered customer – browse vehicles, book rentals, view invoices, and manage profile',         '2024-01-01 09:00:00');
 
 -- ==============================================================
 -- 2. USERS
---    Password hash used  : bcrypt hash of 'Password@123'
+--    Password hash used  : bcrypt hash of 'Password@123' / 'Admin@123'
 --    Hash value          : $2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi
---    Admin special hash  : bcrypt hash of 'Admin@123' (same placeholder for demo)
 -- ==============================================================
 INSERT INTO users (id, email, password_hash, role_id, is_active, created_at, updated_at, last_login) VALUES
--- Staff accounts
+-- Administrator Account
 (1,  'admin@vektor.in',          '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, 1, '2024-01-01 09:00:00', '2024-01-01 09:00:00', '2026-10-14 08:30:00'),
-(2,  'manager.mgroad@vektor.in', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 2, 1, '2024-01-05 10:00:00', '2024-01-05 10:00:00', '2026-10-13 09:15:00'),
-(3,  'agent.airport@vektor.in',  '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 3, 1, '2024-01-10 10:00:00', '2024-01-10 10:00:00', '2026-10-14 07:45:00'),
--- Customer accounts
-(4,  'arjun.sharma@gmail.com',   '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 4, 1, '2024-02-10 11:00:00', '2024-02-10 11:00:00', '2026-10-10 14:20:00'),
-(5,  'priya.nair@gmail.com',     '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 4, 1, '2024-02-15 12:00:00', '2024-02-15 12:00:00', '2026-10-09 18:00:00'),
-(6,  'rahul.verma@gmail.com',    '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 4, 1, '2024-03-01 09:30:00', '2024-03-01 09:30:00', '2026-10-12 11:00:00'),
-(7,  'kavitha.reddy@gmail.com',  '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 4, 1, '2024-03-12 14:00:00', '2024-03-12 14:00:00', '2026-10-08 20:00:00'),
-(8,  'deepak.menon@gmail.com',   '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 4, 1, '2024-04-05 10:00:00', '2024-04-05 10:00:00', '2026-10-11 09:00:00'),
-(9,  'sneha.rao@gmail.com',      '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 4, 1, '2024-04-20 16:00:00', '2024-04-20 16:00:00', '2026-10-07 17:30:00'),
-(10, 'vikram.iyer@gmail.com',    '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 4, 1, '2024-05-01 08:00:00', '2024-05-01 08:00:00', '2026-10-13 22:00:00'),
-(11, 'ananya.patel@gmail.com',   '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 4, 1, '2024-05-15 11:30:00', '2024-05-15 11:30:00', '2026-10-06 15:00:00'),
-(12, 'suresh.kumar@gmail.com',   '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 4, 1, '2024-06-01 09:00:00', '2024-06-01 09:00:00', '2026-10-14 10:45:00'),
-(13, 'meera.krishnan@gmail.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 4, 1, '2024-06-10 13:00:00', '2024-06-10 13:00:00', '2026-10-05 12:00:00');
+-- Customer Accounts
+(4,  'arjun.sharma@gmail.com',   '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 2, 1, '2024-02-10 11:00:00', '2024-02-10 11:00:00', '2026-10-10 14:20:00'),
+(5,  'priya.nair@gmail.com',     '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 2, 1, '2024-02-15 12:00:00', '2024-02-15 12:00:00', '2026-10-09 18:00:00'),
+(6,  'rahul.verma@gmail.com',    '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 2, 1, '2024-03-01 09:30:00', '2024-03-01 09:30:00', '2026-10-12 11:00:00'),
+(7,  'kavitha.reddy@gmail.com',  '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 2, 1, '2024-03-12 14:00:00', '2024-03-12 14:00:00', '2026-10-08 20:00:00'),
+(8,  'deepak.menon@gmail.com',   '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 2, 1, '2024-04-05 10:00:00', '2024-04-05 10:00:00', '2026-10-11 09:00:00'),
+(9,  'sneha.rao@gmail.com',      '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 2, 1, '2024-04-20 16:00:00', '2024-04-20 16:00:00', '2026-10-07 17:30:00'),
+(10, 'vikram.iyer@gmail.com',    '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 2, 1, '2024-05-01 08:00:00', '2024-05-01 08:00:00', '2026-10-13 22:00:00'),
+(11, 'ananya.patel@gmail.com',   '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 2, 1, '2024-05-15 11:30:00', '2024-05-15 11:30:00', '2026-10-06 15:00:00'),
+(12, 'suresh.kumar@gmail.com',   '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 2, 1, '2024-06-01 09:00:00', '2024-06-01 09:00:00', '2026-10-14 10:45:00'),
+(13, 'meera.krishnan@gmail.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 2, 1, '2024-06-10 13:00:00', '2024-06-10 13:00:00', '2026-10-05 12:00:00');
 
 -- ==============================================================
 -- 3. CUSTOMERS  (10 customers, user_ids 4–13)
@@ -73,80 +68,113 @@ INSERT INTO vehicle_categories (id, name, description, icon_name, is_active) VAL
 (6, 'Electric',   'Eco-friendly electric vehicles with zero tailpipe emissions',      'electric_car', 1);
 
 -- ==============================================================
--- 5. BRANCHES  (5 Bengaluru locations)
+-- 5. BRANCHES (24 Major Hubs Across All Indian States & UTs)
 -- ==============================================================
 INSERT INTO branches
     (id, name, address, city, state, pincode, phone, email, manager_name, latitude, longitude, is_active, created_at)
 VALUES
-(1, 'City Centre – MG Road',
-    '12, Brigade Road Junction, MG Road',
-    'Bengaluru', 'Karnataka', '560001',
-    '08041234567', 'mgroad@vektor.in',
-    'Rajesh Naidu',
-    12.9716000, 77.5946000, 1, '2024-01-01 09:00:00'),
+-- Karnataka
+( 1, 'City Centre – MG Road', '12, Brigade Road Junction, MG Road', 'Bengaluru', 'Karnataka', '560001', '08041234567', 'mgroad@vektor.in', 'Rajesh Naidu', 12.9716000, 77.5946000, 1, '2024-01-01 09:00:00'),
+( 2, 'Kempegowda Intl Airport (KIAL)', 'Terminal 1, Arrival Level, KIAL, Devanahalli', 'Bengaluru', 'Karnataka', '562300', '08042345678', 'airport.blr@vektor.in', 'Sumanth Hegde', 13.1979000, 77.7063000, 1, '2024-01-01 09:00:00'),
+( 3, 'Whitefield – ITPL Tech Corridor', 'ITPL Main Road, Hoodi Circle, Whitefield', 'Bengaluru', 'Karnataka', '560066', '08043456789', 'whitefield@vektor.in', 'Padmavathi Krishnan', 12.9824000, 77.7280000, 1, '2024-01-05 10:00:00'),
+( 4, 'Electronic City – Phase 1', 'Hosur Road, Electronic City Phase 1, Neeladri Road', 'Bengaluru', 'Karnataka', '560100', '08044567890', 'ecity@vektor.in', 'Ganesh Murthy', 12.8399000, 77.6770000, 1, '2024-01-05 10:00:00'),
+( 5, 'Indiranagar – 100 Feet Road', '47, 100 Feet Road, HAL 2nd Stage, Indiranagar', 'Bengaluru', 'Karnataka', '560038', '08045678901', 'indiranagar@vektor.in', 'Lakshmi Bhat', 12.9784000, 77.6408000, 1, '2024-01-10 10:00:00'),
+( 6, 'Mysuru – Palace Heritage Hub', 'Bangalore-Nilgiri Road, Nazarbad', 'Mysuru', 'Karnataka', '570010', '08212456789', 'mysuru@vektor.in', 'Praveen Gowda', 12.3051000, 76.6551000, 1, '2024-01-12 10:00:00'),
 
-(2, 'Kempegowda International Airport (KIAL)',
-    'Terminal 1, Arrival Level, KIAL, Devanahalli',
-    'Bengaluru', 'Karnataka', '562300',
-    '08042345678', 'airport@vektor.in',
-    'Sumanth Hegde',
-    13.1979000, 77.7063000, 1, '2024-01-01 09:00:00'),
+-- Maharashtra
+( 7, 'Mumbai – Bandra Kurla Complex (BKC)', 'G Block, Bandra Kurla Complex, Bandra East', 'Mumbai', 'Maharashtra', '400051', '02226501234', 'bkc.mumbai@vektor.in', 'Aditya Deshmukh', 19.0674000, 72.8687000, 1, '2024-01-15 10:00:00'),
+( 8, 'Mumbai – CSMIA Airport Terminal 2', 'Level 2 Arrivals, Chhatrapati Shivaji Maharaj Airport, Sahar', 'Mumbai', 'Maharashtra', '400099', '02266851234', 'airport.bom@vektor.in', 'Rohit Shinde', 19.0896000, 72.8656000, 1, '2024-01-15 10:00:00'),
+( 9, 'Pune – Hinjewadi Infotech Park', 'Phase 1, Hinjewadi Rajiv Gandhi Infotech Park', 'Pune', 'Maharashtra', '411057', '02067123456', 'pune@vektor.in', 'Sneha Kulkarni', 18.5913000, 73.7389000, 1, '2024-01-18 10:00:00'),
 
-(3, 'Whitefield – ITPL',
-    'ITPL Main Road, Hoodi Circle, Whitefield',
-    'Bengaluru', 'Karnataka', '560066',
-    '08043456789', 'whitefield@vektor.in',
-    'Padmavathi Krishnan',
-    12.9824000, 77.7280000, 1, '2024-01-05 10:00:00'),
+-- Delhi NCR
+(10, 'New Delhi – Connaught Place Central', 'Inner Circle, Block C, Connaught Place', 'New Delhi', 'Delhi', '110001', '01123412345', 'cp.delhi@vektor.in', 'Vikram Malhotra', 28.6315000, 77.2167000, 1, '2024-01-20 10:00:00'),
+(11, 'New Delhi – IGI Airport Terminal 3', 'Terminal 3 Arrivals, Indira Gandhi Intl Airport', 'New Delhi', 'Delhi', '110037', '01149631234', 'airport.del@vektor.in', 'Amit Chawla', 28.5562000, 77.1000000, 1, '2024-01-20 10:00:00'),
+(12, 'Gurugram – Cyber City DLF Phase 2', 'Building 10, DLF Cyber City, DLF Phase 2', 'Gurugram', 'Haryana', '122002', '01244512345', 'gurugram@vektor.in', 'Pooja Narang', 28.4906000, 77.0911000, 1, '2024-01-22 10:00:00'),
+(13, 'Noida – Sector 18 Commercial Hub', 'Atta Market Road, Sector 18', 'Noida', 'Uttar Pradesh', '201301', '01204123456', 'noida@vektor.in', 'Manish Tyagi', 28.5708000, 77.3260000, 1, '2024-01-22 10:00:00'),
 
-(4, 'Electronic City – Phase 1',
-    'Hosur Road, Electronic City Phase 1, Neeladri Road',
-    'Bengaluru', 'Karnataka', '560100',
-    '08044567890', 'ecity@vektor.in',
-    'Ganesh Murthy',
-    12.8399000, 77.6770000, 1, '2024-01-05 10:00:00'),
+-- Goa
+(14, 'North Goa – Panaji & Calangute Beach', 'Miramar Circle, Dayanand Bandodkar Marg, Panaji', 'Panaji', 'Goa', '403001', '08322421234', 'goa.north@vektor.in', 'Savio Fernandes', 15.4864000, 73.8124000, 1, '2024-01-25 10:00:00'),
+(15, 'South Goa – Dabolim & MOPA Airport Hub', 'Airport Road, Dabolim', 'Vasco da Gama', 'Goa', '403801', '08322541234', 'airport.goa@vektor.in', 'Mario Rodrigues', 15.3808000, 73.8314000, 1, '2024-01-25 10:00:00'),
 
-(5, 'Indiranagar – 100 Feet Road',
-    '47, 100 Feet Road, HAL 2nd Stage, Indiranagar',
-    'Bengaluru', 'Karnataka', '560038',
-    '08045678901', 'indiranagar@vektor.in',
-    'Lakshmi Bhat',
-    12.9784000, 77.6408000, 1, '2024-01-10 10:00:00');
+-- Telangana
+(16, 'Hyderabad – Hitec City Cyber Towers', 'Hitec City Main Road, Madhapur', 'Hyderabad', 'Telangana', '500081', '04044561234', 'hiteccity@vektor.in', 'Kavitha Reddy', 17.4474000, 78.3762000, 1, '2024-02-01 10:00:00'),
+(17, 'Hyderabad – Rajiv Gandhi Intl Airport', 'Passenger Terminal, Shamshabad', 'Hyderabad', 'Telangana', '500409', '04066971234', 'airport.hyd@vektor.in', 'Sanjay Rao', 17.2403000, 78.4294000, 1, '2024-02-01 10:00:00'),
+
+-- Tamil Nadu
+(18, 'Chennai – Anna Nagar Central', '2nd Avenue, Anna Nagar Roundtana', 'Chennai', 'Tamil Nadu', '600040', '04426211234', 'annanagar@vektor.in', 'Karthik Raman', 13.0850000, 80.2101000, 1, '2024-02-05 10:00:00'),
+(19, 'Chennai – Meenambakkam Airport', 'GST Road, Meenambakkam', 'Chennai', 'Tamil Nadu', '600027', '04422561234', 'airport.maa@vektor.in', 'Devi Sundaram', 12.9941000, 80.1709000, 1, '2024-02-05 10:00:00'),
+
+-- Kerala
+(20, 'Kochi – Ernakulam & Nedumbassery Airport', 'MG Road, Shenoys, Ernakulam', 'Kochi', 'Kerala', '682016', '04842381234', 'kochi@vektor.in', 'Mathew Varghese', 9.9816000, 76.2999000, 1, '2024-02-10 10:00:00'),
+
+-- Rajasthan
+(21, 'Jaipur – Pink City & Airport Hub', 'Tonk Road, Near Jawahar Circle, Malviya Nagar', 'Jaipur', 'Rajasthan', '302017', '01412721234', 'jaipur@vektor.in', 'Rathore Singh', 26.8524000, 75.8052000, 1, '2024-02-12 10:00:00'),
+(22, 'Udaipur – Lake Pichola City Hub', 'Saheli Marg, New Fatehpura, Sukhadia Circle', 'Udaipur', 'Rajasthan', '313001', '02942421234', 'udaipur@vektor.in', 'Bhavna Sharma', 24.5854000, 73.7125000, 1, '2024-02-12 10:00:00'),
+
+-- Gujarat
+(23, 'Ahmedabad – SG Highway & Airport', 'Sarkhej - Gandhinagar Hwy, Bodakdev', 'Ahmedabad', 'Gujarat', '380054', '07940121234', 'ahmedabad@vektor.in', 'Harsh Patel', 23.0373000, 72.5117000, 1, '2024-02-15 10:00:00'),
+
+-- Himachal Pradesh
+(24, 'Manali – Mall Road Adventure Hub', 'Mall Road, Siyal, Manali', 'Manali', 'Himachal Pradesh', '175131', '01902251234', 'manali@vektor.in', 'Rohan Thakur', 32.2396000, 77.1887000, 1, '2024-02-18 10:00:00');
 
 -- ==============================================================
--- 6. BRANCH CONNECTIONS  (bidirectional graph, 8 pairs = 16 rows)
---    Distances estimated from real Bengaluru road distances.
+-- 6. BRANCH CONNECTIONS  (bidirectional graph, regional & highway)
 -- ==============================================================
 INSERT INTO branch_connections
     (id, from_branch_id, to_branch_id, distance_km, travel_time_mins, is_active)
 VALUES
--- MG Road ↔ Airport
+-- Local Bengaluru Graph (Maintained 100% for BFS tests)
 ( 1, 1, 2, 40.50, 75, 1),
 ( 2, 2, 1, 40.50, 75, 1),
--- MG Road ↔ Whitefield
 ( 3, 1, 3, 22.00, 55, 1),
 ( 4, 3, 1, 22.00, 55, 1),
--- MG Road ↔ Electronic City
 ( 5, 1, 4, 25.00, 60, 1),
 ( 6, 4, 1, 25.00, 60, 1),
--- MG Road ↔ Indiranagar
 ( 7, 1, 5,  5.50, 20, 1),
 ( 8, 5, 1,  5.50, 20, 1),
--- Airport ↔ Whitefield
 ( 9, 2, 3, 28.00, 50, 1),
 (10, 3, 2, 28.00, 50, 1),
--- Whitefield ↔ Electronic City
 (11, 3, 4, 30.00, 65, 1),
 (12, 4, 3, 30.00, 65, 1),
--- Indiranagar ↔ Whitefield
 (13, 5, 3, 18.00, 45, 1),
 (14, 3, 5, 18.00, 45, 1),
--- Indiranagar ↔ Electronic City
 (15, 5, 4, 22.00, 55, 1),
-(16, 4, 5, 22.00, 55, 1);
+(16, 4, 5, 22.00, 55, 1),
+
+-- Regional & Interstate National Highway Connections
+(17, 1, 6, 145.00, 180, 1),
+(18, 6, 1, 145.00, 180, 1),
+(19, 1, 18, 345.00, 360, 1),
+(20, 18, 1, 345.00, 360, 1),
+(21, 1, 16, 570.00, 540, 1),
+(22, 16, 1, 570.00, 540, 1),
+(23, 7, 8, 12.00, 30, 1),
+(24, 8, 7, 12.00, 30, 1),
+(25, 7, 9, 148.00, 190, 1),
+(26, 9, 7, 148.00, 190, 1),
+(27, 7, 14, 580.00, 600, 1),
+(28, 14, 7, 580.00, 600, 1),
+(29, 14, 15, 35.00, 55, 1),
+(30, 15, 14, 35.00, 55, 1),
+(31, 10, 11, 16.00, 40, 1),
+(32, 11, 10, 16.00, 40, 1),
+(33, 10, 12, 32.00, 50, 1),
+(34, 12, 10, 32.00, 50, 1),
+(35, 10, 13, 22.00, 45, 1),
+(36, 13, 10, 22.00, 45, 1),
+(37, 10, 21, 280.00, 300, 1),
+(38, 21, 10, 280.00, 300, 1),
+(39, 21, 22, 395.00, 380, 1),
+(40, 22, 21, 395.00, 380, 1),
+(41, 10, 24, 540.00, 660, 1),
+(42, 24, 10, 540.00, 660, 1),
+(43, 7, 23, 525.00, 540, 1),
+(44, 23, 7, 525.00, 540, 1),
+(45, 1, 20, 540.00, 580, 1),
+(46, 20, 1, 540.00, 580, 1);
 
 -- ==============================================================
--- 7. VEHICLES  (18 vehicles with INR rates)
+-- 7. VEHICLES (24 Authentic Indian Rental Vehicles Across Fleet)
 -- ==============================================================
 INSERT INTO vehicles
     (id, vehicle_id, name, model, brand, year, category_id, branch_id,
@@ -156,191 +184,245 @@ INSERT INTO vehicles
      created_at, updated_at)
 VALUES
 
--- ── Economy Cars (category_id=1) ──────────────────────────────
+-- 1. Maruti Swift
 (1,  'VKT-SW-001',
-     'Maruti Swift LXi',          'Swift',        'Maruti Suzuki',  2022,
-     1, 1, 'Pearl White',     'Petrol', 'Manual',    5,
-      900.00,  5600.00,  20000.00,  5000.00,
+     'Maruti Suzuki Swift VXi', 'Swift', 'Maruti Suzuki', 2023,
+     1, 1, 'Pearl Arctic White', 'Petrol', 'Manual', 5,
+     1200.00, 7200.00, 26000.00, 5000.00,
      'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=800&q=80',
-     'Fuel-efficient hatchback perfect for Bengaluru city drives.',
-     '["AC","Bluetooth","Rear Camera","Power Windows","ABS","Airbags x2"]',
-     'Available', 23.20, 1197,
-     '2024-01-15 10:00:00', '2024-01-15 10:00:00'),
+     'India\'s most rented hatchback – ultra-reliable, fuel-efficient and easy to park anywhere.',
+     '["AC","Bluetooth Audio","Rear Camera","Power Windows","ABS with EBD","Dual Airbags"]',
+     'Available', 24.80, 1197, '2024-01-15 10:00:00', '2024-01-15 10:00:00'),
 
+-- 2. Hyundai i20
 (2,  'VKT-I20-002',
-     'Hyundai i20 Asta',          'i20',          'Hyundai',        2023,
-     1, 1, 'Typhoon Silver',  'Petrol', 'Manual',    5,
-     1100.00,  6800.00,  24000.00,  6000.00,
+     'Hyundai i20 Asta Sunroof', 'i20', 'Hyundai', 2023,
+     1, 7, 'Fiery Red', 'Petrol', 'Manual', 5,
+     1400.00, 8400.00, 30000.00, 6000.00,
      'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=80',
-     'Feature-rich premium hatchback with sunroof and touchscreen.',
-     '["Sunroof","8-inch Touchscreen","Wireless Charging","Rear Camera","Lane Departure Warning","6 Airbags"]',
-     'Available', 20.35, 1197,
-     '2024-01-15 10:00:00', '2024-01-15 10:00:00'),
+     'Premium hatchback with electric sunroof, Bose sound system, and spacious seating.',
+     '["Electric Sunroof","10.25-inch Touchscreen","Bose 7-Speaker","Wireless Charger","6 Airbags"]',
+     'Available', 20.35, 1197, '2024-01-15 10:00:00', '2024-01-15 10:00:00'),
 
+-- 3. Honda City
 (3,  'VKT-HOC-003',
-     'Honda City ZX CVT',         'City',         'Honda',          2023,
-     1, 5, 'Lunar Silver',    'Petrol', 'Automatic', 5,
-     1400.00,  8700.00,  30000.00,  8000.00,
+     'Honda City ZX CVT Sedan', 'City', 'Honda', 2023,
+     1, 10, 'Radiant Red Metallic', 'Petrol', 'Automatic', 5,
+     1800.00, 10800.00, 38000.00, 8000.00,
      'https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=800&q=80',
-     'Elegant mid-size sedan with CVT gearbox and premium interiors.',
-     '["Honda Sensing","Sunroof","Wireless Apple CarPlay","Heated Seats","6 Airbags","Lane Keep Assist"]',
-     'Available', 18.40, 1498,
-     '2024-01-20 10:00:00', '2024-01-20 10:00:00'),
+     'Executive sedan with smooth CVT automatic, plush leather seats, and ADAS safety.',
+     '["Honda Sensing ADAS","Sunroof","Wireless Apple CarPlay","Cruise Control","6 Airbags"]',
+     'Available', 18.40, 1498, '2024-01-20 10:00:00', '2024-01-20 10:00:00'),
 
+-- 4. Tata Tigor
 (4,  'VKT-TIG-004',
-     'Tata Tigor XZ+',            'Tigor',        'Tata Motors',    2022,
-     1, 4, 'Magnetic Red',    'Petrol', 'Manual',    5,
-      850.00,  5300.00,  18500.00,  5000.00,
+     'Tata Tigor XZ+ Dual Tone', 'Tigor', 'Tata Motors', 2023,
+     1, 4, 'Opal White', 'Petrol', 'Manual', 5,
+     1100.00, 6600.00, 24000.00, 5000.00,
      'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=800&q=80',
-     'Compact sedan with large boot, ideal for airport runs.',
-     '["AC","Harman Audio","Rear Camera","ABS","Airbags x2","Power Windows"]',
-     'Available', 19.90, 1199,
-     '2024-01-20 10:00:00', '2024-01-20 10:00:00'),
+     '4-star Global NCAP safety rated compact sedan with generous 419L boot space.',
+     '["Harman Audio System","Projector Headlamps","Rear Camera","Push Button Start","Dual Airbags"]',
+     'Available', 19.90, 1199, '2024-01-20 10:00:00', '2024-01-20 10:00:00'),
 
+-- 5. Renault Kwid
 (5,  'VKT-KWD-005',
-     'Renault Kwid RXL',          'Kwid',         'Renault',        2021,
-     1, 4, 'Fiery Red',       'Petrol', 'Manual',    5,
-      800.00,  5000.00,  17000.00,  4000.00,
+     'Renault Kwid Climber', 'Kwid', 'Renault', 2023,
+     1, 14, 'Zanskar Blue', 'Petrol', 'Manual', 5,
+     950.00, 5700.00, 20000.00, 4000.00,
      'https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&w=800&q=80',
-     'Budget-friendly hatchback ideal for short trips around Electronic City.',
-     '["AC","Digital Instrument Cluster","Power Windows","ABS","Airbags x2"]',
-     'Available', 22.30, 999,
-     '2024-02-01 10:00:00', '2024-02-01 10:00:00'),
+     'Budget-friendly micro-hatchback with SUV styling, ideal for narrow Goa beach lanes.',
+     '["High Ground Clearance","8-inch Touchscreen","Rear Camera","ABS","Airbags"]',
+     'Available', 22.30, 999, '2024-02-01 10:00:00', '2024-02-01 10:00:00'),
 
--- ── SUVs (category_id=2) ──────────────────────────────────────
+-- 6. Toyota Innova Crysta
 (6,  'VKT-INN-006',
-     'Toyota Innova Crysta GX',   'Innova Crysta','Toyota',         2022,
-     2, 2, 'Platinum White Pearl', 'Diesel', 'Manual', 7,
-     2500.00, 15500.00,  55000.00, 15000.00,
+     'Toyota Innova Crysta 2.4 VX', 'Innova Crysta', 'Toyota', 2023,
+     2, 2, 'Super White', 'Diesel', 'Manual', 7,
+     2800.00, 17500.00, 62000.00, 15000.00,
      'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80',
-     'The king of MPVs – spacious 7-seater perfect for airport transfers.',
-     '["Captain Seats","AC","Touchscreen","Rear Camera","ESP","Airbags x6","Ambient Lighting"]',
-     'Available', 14.29, 2393,
-     '2024-01-15 11:00:00', '2024-01-15 11:00:00'),
+     'The undisputed king of Indian highway rentals – legendary comfort and 7 captain seats.',
+     '["Captain Seats","Rear AC with Independent Controls","Touchscreen Infotainment","7 Airbags","Hill Assist"]',
+     'Available', 14.29, 2393, '2024-01-15 11:00:00', '2024-01-15 11:00:00'),
 
+-- 7. Kia Seltos
 (7,  'VKT-SEL-007',
-     'Kia Seltos HTX AWD',        'Seltos',       'Kia',            2023,
-     2, 3, 'Glacier White Pearl', 'Petrol', 'Automatic', 5,
-     2200.00, 13600.00,  48000.00, 12000.00,
+     'Kia Seltos HTX Panoramic', 'Seltos', 'Kia', 2023,
+     2, 3, 'Gravity Grey', 'Petrol', 'Automatic', 5,
+     2200.00, 13600.00, 48000.00, 12000.00,
      'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=800&q=80',
-     'Feature-loaded compact SUV with panoramic sunroof and ADAS.',
-     '["Panoramic Sunroof","ADAS","Bose 8-Speaker","360° Camera","Wireless CarPlay","Ventilated Seats","Ambient Lighting"]',
-     'Rented', 16.50, 1497,
-     '2024-01-20 11:00:00', '2024-01-20 11:00:00'),
+     'Feature-loaded compact SUV with panoramic sunroof and dual 10.25-inch panoramic displays.',
+     '["Dual Panoramic Sunroof","10.25-inch Touchscreen","Smart Pure Air Purifier","6 Airbags","LED Lightbar"]',
+     'Rented', 16.50, 1497, '2024-01-20 11:00:00', '2024-01-20 11:00:00'),
 
+-- 8. Hyundai Creta
 (8,  'VKT-CRE-008',
-     'Hyundai Creta SX(O)',        'Creta',        'Hyundai',        2023,
-     2, 5, 'Abyss Black Pearl',   'Diesel', 'Automatic', 5,
-     2000.00, 12400.00,  44000.00, 10000.00,
+     'Hyundai Creta SX(O) Turbo', 'Creta', 'Hyundai', 2024,
+     2, 5, 'Abyss Black Pearl', 'Diesel', 'Automatic', 5,
+     2400.00, 14800.00, 52000.00, 12000.00,
      'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?auto=format&fit=crop&w=800&q=80',
-     'Bengaluru favourite – stylish compact SUV with diesel efficiency.',
-     '["Panoramic Sunroof","ADAS Level 2","Bose Sound","360° Camera","Ventilated Front Seats","Connected Car Tech"]',
-     'Available', 18.40, 1493,
-     '2024-01-25 11:00:00', '2024-01-25 11:00:00'),
+     'India\'s favourite SUV – ADAS Level 2, ventilated seats, and commanding highway presence.',
+     '["ADAS Level 2 Suite","Panoramic Sunroof","Bose 8-Speaker","Ventilated Front Seats","360° Camera"]',
+     'Available', 18.40, 1493, '2024-01-25 11:00:00', '2024-01-25 11:00:00'),
 
+-- 9. Mahindra XUV700
 (9,  'VKT-XUV-009',
-     'Mahindra XUV700 AX7 L',     'XUV700',       'Mahindra',       2022,
-     2, 1, 'Dazzling Silver',     'Diesel', 'Automatic', 7,
-     3500.00, 21700.00,  75000.00, 20000.00,
+     'Mahindra XUV700 AX7 Luxury', 'XUV700', 'Mahindra', 2023,
+     2, 16, 'Midnight Black', 'Diesel', 'Automatic', 7,
+     3400.00, 21000.00, 72000.00, 20000.00,
      'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80',
-     'Flagship 7-seater SUV with ADAS, panoramic roof and AdrenoX system.',
-     '["AdrenoX Infotainment","ADAS Level 2","Panoramic Sunroof","Sony 3D Sound","360° Camera","Wireless Charging","7-Seater"]',
-     'Available', 15.20, 2198,
-     '2024-02-01 11:00:00', '2024-02-01 11:00:00'),
+     'High-tech 7-seater SUV with Sony 3D sound, Skyroof, and mStallion/mHawk power.',
+     '["Sony 3D 12-Speaker","Panoramic Skyroof","Wireless Charging","ADAS","Electronic Park Brake"]',
+     'Available', 15.20, 2198, '2024-02-01 11:00:00', '2024-02-01 11:00:00'),
 
+-- 10. Toyota Fortuner
 (10, 'VKT-FOR-010',
-     'Toyota Fortuner Legender 4x4','Fortuner',   'Toyota',         2022,
-     2, 2, 'Supersonic Red',      'Diesel', 'Automatic', 7,
-     4000.00, 24800.00,  88000.00, 25000.00,
+     'Toyota Fortuner 4x4 Legender', 'Fortuner Legender', 'Toyota', 2023,
+     2, 8, 'Platinum White Pearl', 'Diesel', 'Automatic', 7,
+     4800.00, 29800.00, 99000.00, 30000.00,
      'https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=800&q=80',
-     'Premium 4x4 SUV – ideal for weekend getaways to Coorg and Ooty.',
-     '["4WD","JBL 11-Speaker","Panoramic Sunroof","Wireless CarPlay","Lane Departure","Front & Rear ParkSense","Ambient Lighting"]',
-     'Available', 12.00, 2755,
-     '2024-02-01 11:00:00', '2024-02-01 11:00:00'),
+     'The ultimate VIP road-trip SUV – unmatched 4x4 capability and dominating road presence.',
+     '["4x4 with Low-Range Transfer","11-Speaker JBL Sound","Kick-Sensor Tailgate","Wireless Charger","7 Airbags"]',
+     'Available', 12.00, 2755, '2024-02-01 11:00:00', '2024-02-01 11:00:00'),
 
--- ── Motorcycles (category_id=3) ───────────────────────────────
+-- 11. Royal Enfield Classic 350
 (11, 'VKT-MET-011',
-     'Royal Enfield Meteor 350',  'Meteor 350',   'Royal Enfield',  2023,
-     3, 1, 'Fireball Orange',     'Petrol', 'Manual', 2,
-      650.00,  4000.00,  14000.00,  3000.00,
+     'Royal Enfield Classic 350', 'Classic 350', 'Royal Enfield', 2023,
+     3, 14, 'Halcyon Black', 'Petrol', 'Manual', 2,
+     750.00, 4500.00, 16000.00, 3000.00,
      'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=800&q=80',
-     'The smooth cruiser – great for Bengaluru weekends and highway rides.',
-     '["Tripper Navigation","USB Charging","Halogen Headlight","Dual Channel ABS","Bluetooth Connectivity"]',
-     'Available', 36.40, 349,
-     '2024-02-10 10:00:00', '2024-02-10 10:00:00'),
+     'The timeless Indian thump – quintessential cruiser for Goa coasts and Himachal highways.',
+     '["J-Series Smooth Engine","Dual-Channel ABS","USB Mobile Charger","Iconic Teardrop Tank"]',
+     'Available', 36.40, 349, '2024-02-10 10:00:00', '2024-02-10 10:00:00'),
 
+-- 12. Honda Activa 6G
 (12, 'VKT-ACT-012',
-     'Honda Activa 6G DLX',       'Activa 6G',    'Honda',          2023,
-     3, 3, 'Pearl Precious White','Petrol', 'Manual', 2,
-      400.00,  2500.00,   9000.00,  2000.00,
+     'Honda Activa 6G DLX', 'Activa 6G', 'Honda', 2024,
+     3, 1, 'Pearl Siren Blue', 'Petrol', 'Automatic', 2,
+     450.00, 2700.00, 9500.00, 2000.00,
      'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=800&q=80',
-     'India\'s best-selling scooter – nimble and fuel-efficient for city rides.',
-     '["ACG Silent Start","Combi Brake System","LED Headlight","USB Mobile Charger","Dual Function Switch"]',
-     'Available', 60.00, 109,
-     '2024-02-10 10:00:00', '2024-02-10 10:00:00'),
+     'India\'s #1 selling scooter – lightweight, ultra-smooth automatic transmission for easy city commuting.',
+     '["eSP Engine","Silent Start with ACG","Telescopic Suspension","External Fuel Fill","Combi Brake System"]',
+     'Available', 50.00, 109, '2024-02-10 10:00:00', '2024-02-10 10:00:00'),
 
+-- 13. Bajaj Pulsar NS200
 (13, 'VKT-PUL-013',
-     'Bajaj Pulsar NS200',        'Pulsar NS200',  'Bajaj Auto',     2022,
-     3, 4, 'Volcanic Black',      'Petrol', 'Manual', 2,
-      500.00,  3100.00,  11000.00,  2500.00,
+     'Bajaj Pulsar NS200 BS6', 'Pulsar NS200', 'Bajaj Auto', 2023,
+     3, 9, 'Burnt Red & White', 'Petrol', 'Manual', 2,
+     600.00, 3600.00, 13000.00, 2500.00,
      'https://images.unsplash.com/photo-1558981408-db0ecd8a1ee4?auto=format&fit=crop&w=800&q=80',
-     'Sporty naked street fighter – perfect for quick Bengaluru commutes.',
-     '["Slipper Clutch","Dual Channel ABS","LED DRL","Adjustable Suspension","Semi-Digital Cluster"]',
-     'Available', 35.00, 199,
-     '2024-02-15 10:00:00', '2024-02-15 10:00:00'),
+     'Streetfighter motorcycle with liquid-cooled 24.5 PS engine and dual-channel ABS.',
+     '["Liquid-Cooled Triple Spark","Dual-Channel ABS","Perimeter Frame","Nitrox Monoshock"]',
+     'Available', 35.00, 199, '2024-02-15 10:00:00', '2024-02-15 10:00:00'),
 
--- ── Van (category_id=4) ───────────────────────────────────────
+-- 14. Force Urbania / Traveller
 (14, 'VKT-FTV-014',
-     'Force Traveller 26 Seater', 'Traveller 26', 'Force Motors',   2022,
-     4, 2, 'Pearl White',         'Diesel', 'Manual', 26,
-     5500.00, 34100.00, 120000.00, 30000.00,
+     'Force Urbania Luxury Van', 'Urbania 13', 'Force Motors', 2023,
+     4, 11, 'Pearl White', 'Diesel', 'Manual', 13,
+     5500.00, 34000.00, 120000.00, 30000.00,
      'https://images.unsplash.com/photo-1527786356703-4b100091cd2c?auto=format&fit=crop&w=800&q=80',
-     'Large capacity van ideal for corporate outings, pilgrimages, and tours.',
-     '["Push-Back Seats","AC","Large Luggage Space","Rear-Wheel Drive","Music System","Call Bell"]',
-     'Available', 11.00, 2596,
-     '2024-02-15 10:00:00', '2024-02-15 10:00:00'),
+     'Modern European-styled luxury passenger van with individual reclining seats and dedicated AC vents.',
+     '["Individual Reclining Seats","Individual AC Vents","Dual Airbags","Sealed Panoramic Windows","Spacious Luggage Area"]',
+     'Available', 11.50, 2596, '2024-02-15 10:00:00', '2024-02-15 10:00:00'),
 
+-- 15. Maruti Ertiga
 (15, 'VKT-ERT-015',
-     'Maruti Ertiga ZXi+',        'Ertiga',        'Maruti Suzuki',  2023,
-     4, 5, 'Nexa Blue',           'Petrol', 'Automatic', 7,
-     1800.00, 11200.00,  39000.00,  9000.00,
+     'Maruti Ertiga ZXi+ AT', 'Ertiga', 'Maruti Suzuki', 2023,
+     4, 18, 'Metallic Magma Grey', 'Petrol', 'Automatic', 7,
+     1900.00, 11800.00, 42000.00, 9000.00,
      'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80',
-     'Compact MPV – great for families and small groups across Bengaluru.',
-     '["SmartPlay Pro Touchscreen","360° Camera","Wireless CarPlay","6 Airbags","Rear AC Vents","Padded Armrests"]',
-     'Rented', 19.34, 1462,
-     '2024-03-01 10:00:00', '2024-03-01 10:00:00'),
+     'The ultimate economical 7-seater MPV with smart hybrid technology and paddle shifters.',
+     '["7-Seater Flexibility","Paddle Shifters","SmartPlay Pro Infotainment","Rear AC Blower","Cruise Control"]',
+     'Rented', 20.30, 1462, '2024-03-01 10:00:00', '2024-03-01 10:00:00'),
 
--- ── Luxury (category_id=5) ────────────────────────────────────
+-- 16. BMW 3 Series
 (16, 'VKT-BMW-016',
-     'BMW 3 Series 320d M Sport', '3 Series',     'BMW',            2023,
-     5, 1, 'Carbon Black Metallic','Diesel', 'Automatic', 5,
-     8000.00, 49600.00, 175000.00, 50000.00,
+     'BMW 3 Series 330Li M Sport', '3 Series', 'BMW', 2023,
+     5, 7, 'Portimao Blue', 'Petrol', 'Automatic', 5,
+     8500.00, 52000.00, 180000.00, 50000.00,
      'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=800&q=80',
-     'The ultimate business sedan – unmatched driving dynamics and luxury.',
-     '["Live Cockpit Pro","Harman Kardon Sound","Wireless CarPlay","Parking Assistant Plus","Gesture Control","Ambient Lighting x6"]',
-     'Available', 18.90, 1995,
-     '2024-03-01 10:00:00', '2024-03-01 10:00:00'),
+     'Long-wheelbase executive luxury sedan with opulent legroom and Harman Kardon sound.',
+     '["BMW Curved Display","Panoramic Glass Roof","Harman Kardon Surround","Parking Assistant","Wireless Apple CarPlay"]',
+     'Available', 15.30, 1998, '2024-03-01 10:00:00', '2024-03-01 10:00:00'),
 
+-- 17. Mercedes-Benz C-Class
 (17, 'VKT-MBC-017',
-     'Mercedes-Benz C-Class 220d','C-Class',      'Mercedes-Benz',  2023,
-     5, 1, 'Polar White',         'Diesel', 'Automatic', 5,
-    10000.00, 62000.00, 220000.00, 70000.00,
+     'Mercedes-Benz C-Class 220d', 'C-Class', 'Mercedes-Benz', 2023,
+     5, 10, 'Obsidian Black Metallic', 'Diesel', 'Automatic', 5,
+     10500.00, 65000.00, 230000.00, 70000.00,
      'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=800&q=80',
-     'The epitome of German luxury – perfect for high-profile corporate events.',
-     '["MBUX Infotainment","Burmester Sound","64-colour Ambient Lighting","Active Distance Assist","Augmented Reality Nav","Massage Seats"]',
-     'Available', 16.40, 1993,
-     '2024-03-01 10:00:00', '2024-03-01 10:00:00'),
+     'The Baby S-Class – unparalleled German engineering, 64-colour ambient lighting and MBUX.',
+     '["11.9-inch MBUX Display","Burmester 3D Sound","64-Colour Ambient Lighting","Biometric Fingerprint Scanner","Active Brake Assist"]',
+     'Available', 16.40, 1993, '2024-03-01 10:00:00', '2024-03-01 10:00:00'),
 
--- ── Electric (category_id=6) ──────────────────────────────────
+-- 18. Tata Nexon EV
 (18, 'VKT-NEV-018',
-     'Tata Nexon EV Max LR',      'Nexon EV Max', 'Tata Motors',    2023,
-     6, 3, 'Intensi-Teal',        'Electric', 'Automatic', 5,
-     1500.00,  9300.00,  33000.00,  8000.00,
+     'Tata Nexon EV Max LR', 'Nexon EV Max', 'Tata Motors', 2024,
+     6, 2, 'Intensi-Teal', 'Electric', 'Automatic', 5,
+     1800.00, 11000.00, 39000.00, 8000.00,
      'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=800&q=80',
-     'India\'s most popular EV – 437 km range, ideal for eco-conscious travellers.',
-     '["437 km Range","Zconnect App","Wireless Charging","JBL Sound","ADAS","Ventilated Seats","V2V Charging","10.25-inch Screen"]',
-     'Reserved', 7.80, 0,   -- 0 engine_cc for EV
-     '2024-03-10 10:00:00', '2024-03-10 10:00:00');
+     'India\'s best-selling electric car with 453 km ARAI range, multi-mode regen and fast charging.',
+     '["453 km ARAI Range","Multi-Mode Regenerative Braking","Air Purifier with AQI","Ventilated Front Seats","Wireless Charger"]',
+     'Reserved', 0.00, 0, '2024-03-10 10:00:00', '2024-03-10 10:00:00'),
+
+-- 19. Mahindra Thar 4x4
+(19, 'VKT-THR-019',
+     'Mahindra Thar 4x4 LX Hard Top', 'Thar 4x4', 'Mahindra', 2023,
+     2, 14, 'Napoli Black', 'Diesel', 'Manual', 4,
+     3200.00, 19500.00, 68000.00, 18000.00,
+     'https://images.unsplash.com/photo-1533106497176-45ae19e68ba2?auto=format&fit=crop&w=800&q=80',
+     'The ultimate Indian holiday icon – authentic 4x4 trail rating, convertible/hard-top for Goa beaches and Manali mountains.',
+     '["Mechanical Locking Differential","Shift-on-the-fly 4x4","Washable Interiors with Drain Plugs","Roll Cage","Touchscreen Infotainment"]',
+     'Available', 15.20, 2184, '2024-03-15 10:00:00', '2024-03-15 10:00:00'),
+
+-- 20. Mahindra Scorpio-N
+(20, 'VKT-SCP-020',
+     'Mahindra Scorpio-N Z8 L 4WD', 'Scorpio-N', 'Mahindra', 2023,
+     2, 21, 'Dazzling Silver', 'Diesel', 'Automatic', 7,
+     3000.00, 18500.00, 65000.00, 15000.00,
+     'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80',
+     'Big Daddy of SUVs – commanding height, 4XPLOR terrain modes, and effortless highway cruising across Rajasthan.',
+     '["4XPLOR Intelligent Terrain Response","Sony 12-Speaker Sound","Sunroof","Wireless Android Auto/CarPlay","Dual-Zone Climate Control"]',
+     'Available', 14.50, 2198, '2024-03-15 10:00:00', '2024-03-15 10:00:00'),
+
+-- 21. Maruti Suzuki Dzire
+(21, 'VKT-DZR-021',
+     'Maruti Suzuki Dzire VXi', 'Dzire', 'Maruti Suzuki', 2023,
+     1, 10, 'Sherwood Brown', 'Petrol', 'Manual', 5,
+     1350.00, 8100.00, 28000.00, 5000.00,
+     'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=800&q=80',
+     'India\'s most loved compact sedan – unbeatable fuel efficiency of 24+ km/l and smooth ride comfort.',
+     '["Smart Hybrid Technology","Rear AC Vents","Push Button Start","Electrically Foldable ORVMs","Dual Airbags"]',
+     'Available', 24.12, 1197, '2024-03-20 10:00:00', '2024-03-20 10:00:00'),
+
+-- 22. Tata Punch
+(22, 'VKT-PUN-022',
+     'Tata Punch Creative AMT', 'Punch', 'Tata Motors', 2023,
+     2, 23, 'Atomic Orange', 'Petrol', 'Automatic', 5,
+     1250.00, 7500.00, 26000.00, 5000.00,
+     'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=800&q=80',
+     '5-Star Global NCAP safety rated micro-SUV with 187 mm ground clearance and automatic convenience.',
+     '["5-Star Safety Rating","Traction Pro Mode","Cooled Glovebox","Cruise Control","Auto Headlamps"]',
+     'Available', 18.80, 1199, '2024-03-20 10:00:00', '2024-03-20 10:00:00'),
+
+-- 23. Royal Enfield Hunter 350
+(23, 'VKT-HUN-023',
+     'Royal Enfield Hunter 350 Dapper', 'Hunter 350', 'Royal Enfield', 2023,
+     3, 20, 'Dapper Ash', 'Petrol', 'Manual', 2,
+     700.00, 4200.00, 15000.00, 3000.00,
+     'https://images.unsplash.com/photo-1558981408-db0ecd8a1ee4?auto=format&fit=crop&w=800&q=80',
+     'Agile roadster motorcycle tuned for zippy Kerala backwaters and coastal city exploring.',
+     '["J-Series 350cc Engine","Dual-Channel ABS","Cast Alloy Wheels with Tubeless Tyres","Digi-Analog Instrument Cluster"]',
+     'Available', 36.20, 349, '2024-03-25 10:00:00', '2024-03-25 10:00:00'),
+
+-- 24. Toyota Urban Cruiser Hyryder
+(24, 'VKT-HYR-024',
+     'Toyota Urban Cruiser Hyryder Hybrid', 'Hyryder Hybrid', 'Toyota', 2023,
+     2, 24, 'Cafe White Dual Tone', 'Hybrid', 'Automatic', 5,
+     2100.00, 12600.00, 45000.00, 10000.00,
+     'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?auto=format&fit=crop&w=800&q=80',
+     'Strong hybrid SUV with silent EV mode driving and astonishing 27.97 km/l mileage for Himachal hills.',
+     '["Strong Self-Charging Hybrid","EV Drive Mode","Panoramic Sunroof","Heads-Up Display (HUD)","Wireless Charging"]',
+     'Available', 27.97, 1490, '2024-03-25 10:00:00', '2024-03-25 10:00:00');
 
 -- ==============================================================
 -- 8. BOOKINGS  (12 bookings, triggers disabled for seed)

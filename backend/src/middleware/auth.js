@@ -42,7 +42,10 @@ const requireRole = (...roles) => {
       return error(res, 'Authentication required.', 401);
     }
 
-    if (!roles.includes(req.user.role)) {
+    const userRole = (req.user.role || '').toLowerCase();
+    const allowed = roles.map((r) => r.toLowerCase());
+
+    if (!allowed.includes(userRole)) {
       return error(
         res,
         `Access denied. Required role(s): ${roles.join(', ')}. Your role: ${req.user.role}`,

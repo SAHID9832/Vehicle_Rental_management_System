@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Search, Phone, Mail, MapPin, Eye, FileText, X } from 'lucide-react';
+import { Users, Search, Phone, Mail, MapPin, Eye, FileText, X, Trash2, UserPlus, Shield } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { customersApi } from '../../services/api';
 import { Customer } from '../../types';
@@ -31,6 +31,23 @@ export default function AdminCustomers() {
   useEffect(() => {
     loadCustomers();
   }, []);
+
+  const handleDeleteCustomer = async (c: Customer) => {
+    const fullName = `${c.first_name} ${c.last_name}`;
+    if (!window.confirm(`Are you sure you want to permanently delete customer account for "${fullName}" (${c.email})?`)) {
+      return;
+    }
+    try {
+      await customersApi.delete(c.id);
+      toast.success(`Customer "${fullName}" deleted successfully.`);
+      loadCustomers();
+      if (selectedCustomer?.id === c.id) {
+        setSelectedCustomer(null);
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to delete customer.');
+    }
+  };
 
   const openCustomerDetails = async (c: Customer) => {
     setSelectedCustomer(c);
@@ -141,13 +158,20 @@ export default function AdminCustomers() {
                     <td className="py-3.5 px-6 text-gray-600">
                       {c.created_at ? formatDateTime(c.created_at) : 'Active'}
                     </td>
-                    <td className="py-3.5 px-6 text-right">
+                    <td className="py-3.5 px-6 text-right space-x-2">
                       <button
                         onClick={() => openCustomerDetails(c)}
                         className="px-3 py-1.5 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold text-xs transition-colors inline-flex items-center gap-1"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         <span>History</span>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCustomer(c)}
+                        title="Delete customer account"
+                        className="p-1.5 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 transition-colors inline-flex items-center"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </td>
                   </tr>

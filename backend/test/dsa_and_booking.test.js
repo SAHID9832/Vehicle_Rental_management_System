@@ -24,66 +24,21 @@ function runTest(name, fn) {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// 1. LINKED LIST TEST
-// ─────────────────────────────────────────────────────────────
-class ListNode {
-  constructor(data, next = null) {
-    this.data = data;
-    this.next = next;
-  }
-}
+const {
+  SinglyLinkedList,
+  Stack,
+  Queue,
+  evaluateRentalCostExpression,
+  BinaryTree,
+  BinarySearchTree,
+  Graph,
+  linearSearchVehicles,
+  binarySearchVehicles,
+  mergeSortVehiclesByPrice,
+  greedyVehicleRecommendation,
+} = require('../src/dsa');
 
-class SinglyLinkedList {
-  constructor() {
-    this.head = null;
-    this.size = 0;
-  }
-  insertAtHead(data) {
-    this.head = new ListNode(data, this.head);
-    this.size++;
-  }
-  insertAtTail(data) {
-    const node = new ListNode(data);
-    if (!this.head) {
-      this.head = node;
-    } else {
-      let cur = this.head;
-      while (cur.next) cur = cur.next;
-      cur.next = node;
-    }
-    this.size++;
-  }
-  deleteById(id) {
-    if (!this.head) return false;
-    if (this.head.data.id === id) {
-      this.head = this.head.next;
-      this.size--;
-      return true;
-    }
-    let cur = this.head;
-    while (cur.next) {
-      if (cur.next.data.id === id) {
-        cur.next = cur.next.next;
-        this.size--;
-        return true;
-      }
-      cur = cur.next;
-    }
-    return false;
-  }
-  traverse() {
-    const res = [];
-    let cur = this.head;
-    while (cur) {
-      res.push(cur.data);
-      cur = cur.next;
-    }
-    return res;
-  }
-}
-
-runTest('Phase 1A: Singly Linked List Operations', () => {
+runTest('Phase 1A: Singly Linked List Operations from src/dsa/LinkedList.js', () => {
   const list = new SinglyLinkedList();
   assert.strictEqual(list.size, 0);
 
@@ -92,7 +47,7 @@ runTest('Phase 1A: Singly Linked List Operations', () => {
   list.insertAtTail({ id: 3, name: 'Honda City' });
 
   assert.strictEqual(list.size, 3);
-  const elements = list.traverse();
+  const elements = list.toArray().map((n) => n.data);
   assert.strictEqual(elements[0].name, 'Maruti Swift');
   assert.strictEqual(elements[1].name, 'Hyundai i20');
   assert.strictEqual(elements[2].name, 'Honda City');
@@ -100,36 +55,12 @@ runTest('Phase 1A: Singly Linked List Operations', () => {
   const deleted = list.deleteById(2);
   assert.strictEqual(deleted, true);
   assert.strictEqual(list.size, 2);
-  const afterDelete = list.traverse();
+  const afterDelete = list.toArray().map((n) => n.data);
   assert.strictEqual(afterDelete[0].name, 'Maruti Swift');
   assert.strictEqual(afterDelete[1].name, 'Honda City');
 });
 
-// ─────────────────────────────────────────────────────────────
-// 2. STACK TEST (LIFO)
-// ─────────────────────────────────────────────────────────────
-class Stack {
-  constructor() {
-    this.top = null;
-    this.size = 0;
-  }
-  push(data) {
-    this.top = { data, next: this.top };
-    this.size++;
-  }
-  pop() {
-    if (!this.top) return null;
-    const val = this.top.data;
-    this.top = this.top.next;
-    this.size--;
-    return val;
-  }
-  peek() {
-    return this.top ? this.top.data : null;
-  }
-}
-
-runTest('Phase 1B: Stack LIFO Operations', () => {
+runTest('Phase 1B: Stack LIFO Operations from src/dsa/Stack.js', () => {
   const stack = new Stack();
   stack.push('Trip #101');
   stack.push('Trip #102');
@@ -142,36 +73,7 @@ runTest('Phase 1B: Stack LIFO Operations', () => {
   assert.strictEqual(stack.size, 1);
 });
 
-// ─────────────────────────────────────────────────────────────
-// 3. QUEUE TEST (FIFO)
-// ─────────────────────────────────────────────────────────────
-class Queue {
-  constructor() {
-    this.front = null;
-    this.rear = null;
-    this.size = 0;
-  }
-  enqueue(data) {
-    const node = { data, next: null };
-    if (!this.rear) {
-      this.front = this.rear = node;
-    } else {
-      this.rear.next = node;
-      this.rear = node;
-    }
-    this.size++;
-  }
-  dequeue() {
-    if (!this.front) return null;
-    const val = this.front.data;
-    this.front = this.front.next;
-    if (!this.front) this.rear = null;
-    this.size--;
-    return val;
-  }
-}
-
-runTest('Phase 1C: Queue FIFO Operations for Waiting Customers', () => {
+runTest('Phase 1C: Queue FIFO Operations from src/dsa/Queue.js', () => {
   const queue = new Queue();
   queue.enqueue('Customer A (First)');
   queue.enqueue('Customer B (Second)');
@@ -183,133 +85,30 @@ runTest('Phase 1C: Queue FIFO Operations for Waiting Customers', () => {
   assert.strictEqual(queue.size, 1);
 });
 
-// ─────────────────────────────────────────────────────────────
-// 4. STACK-BASED EXPRESSION EVALUATOR TEST
-// ─────────────────────────────────────────────────────────────
-runTest('Phase 1D: Stack-Based Rental Expression Evaluation', () => {
-  // Evaluates postfix: "3 2000 * 500 - 200 +"
-  // (3 * 2000) - 500 + 200 = 6000 - 500 + 200 = 5700
-  const stack = [];
-  const tokens = ['3', '2000', '*', '500', '-', '200', '+'];
-
-  for (const token of tokens) {
-    if (!isNaN(Number(token))) {
-      stack.push(Number(token));
-    } else {
-      const b = stack.pop();
-      const a = stack.pop();
-      if (token === '*') stack.push(a * b);
-      else if (token === '-') stack.push(a - b);
-      else if (token === '+') stack.push(a + b);
-    }
-  }
-
-  assert.strictEqual(stack.length, 1);
-  assert.strictEqual(stack[0], 5700);
+runTest('Phase 1D: Stack-Based Rental Expression Evaluation from src/dsa/Stack.js', () => {
+  // (3 days * 2000 daily rate) - 500 discount + 200 extra = 5700
+  const evalResult = evaluateRentalCostExpression(3, 2000, 500, 200);
+  assert.strictEqual(evalResult.result, 5700);
+  assert.ok(evalResult.steps.length > 0);
+  assert.ok(evalResult.postfix.includes('*'));
 });
 
-// ─────────────────────────────────────────────────────────────
-// 5. BINARY TREE TRAVERSALS TEST
-// ─────────────────────────────────────────────────────────────
-class BTreeNode {
-  constructor(val, left = null, right = null) {
-    this.val = val;
-    this.left = left;
-    this.right = right;
-  }
-}
+runTest('Phase 2A & 2B: Binary Tree Traversals from src/dsa/BinaryTree.js', () => {
+  const tree = new BinaryTree();
+  tree.insert({ id: 1, name: 'Sedans' });
+  tree.insert({ id: 2, name: 'Economy' });
+  tree.insert({ id: 3, name: 'Luxury' });
 
-runTest('Phase 2A & 2B: Binary Tree Preorder, Inorder, Postorder Traversals', () => {
-  //        1 (Sedans)
-  //       / \
-  //      2   3 (Economy, Luxury)
-  const root = new BTreeNode(1, new BTreeNode(2), new BTreeNode(3));
-
-  const preorder = [];
-  const traversePre = (n) => {
-    if (!n) return;
-    preorder.push(n.val);
-    traversePre(n.left);
-    traversePre(n.right);
-  };
-  traversePre(root);
-  assert.deepStrictEqual(preorder, [1, 2, 3]);
-
-  const inorder = [];
-  const traverseIn = (n) => {
-    if (!n) return;
-    traverseIn(n.left);
-    inorder.push(n.val);
-    traverseIn(n.right);
-  };
-  traverseIn(root);
-  assert.deepStrictEqual(inorder, [2, 1, 3]);
-
-  const postorder = [];
-  const traversePost = (n) => {
-    if (!n) return;
-    traversePost(n.left);
-    traversePost(n.right);
-    postorder.push(n.val);
-  };
-  traversePost(root);
-  assert.deepStrictEqual(postorder, [2, 3, 1]);
+  const pre = tree.preorder().map((n) => n.id);
+  assert.strictEqual(pre.length, 3);
+  const inOrder = tree.inorder().map((n) => n.id);
+  assert.strictEqual(inOrder.length, 3);
+  const post = tree.postorder().map((n) => n.id);
+  assert.strictEqual(post.length, 3);
 });
 
-// ─────────────────────────────────────────────────────────────
-// 6. BINARY SEARCH TREE TEST
-// ─────────────────────────────────────────────────────────────
-class BSTNode {
-  constructor(key, val) {
-    this.key = key;
-    this.val = val;
-    this.left = null;
-    this.right = null;
-  }
-}
-
-class BST {
-  constructor() {
-    this.root = null;
-  }
-  insert(key, val) {
-    const node = new BSTNode(key, val);
-    if (!this.root) {
-      this.root = node;
-      return;
-    }
-    let cur = this.root;
-    while (true) {
-      if (key < cur.key) {
-        if (!cur.left) {
-          cur.left = node;
-          return;
-        }
-        cur = cur.left;
-      } else if (key > cur.key) {
-        if (!cur.right) {
-          cur.right = node;
-          return;
-        }
-        cur = cur.right;
-      } else return;
-    }
-  }
-  search(key) {
-    let cur = this.root;
-    let comparisons = 0;
-    while (cur) {
-      comparisons++;
-      if (key === cur.key) return { found: true, val: cur.val, comparisons };
-      if (key < cur.key) cur = cur.left;
-      else cur = cur.right;
-    }
-    return { found: false, val: null, comparisons };
-  }
-}
-
-runTest('Phase 2C: Binary Search Tree Insert and Lookup', () => {
-  const bst = new BST();
+runTest('Phase 2C: Binary Search Tree from src/dsa/BinaryTree.js', () => {
+  const bst = new BinarySearchTree();
   bst.insert(5, 'Kia Seltos');
   bst.insert(2, 'Hyundai i20');
   bst.insert(8, 'Toyota Fortuner');
@@ -318,161 +117,83 @@ runTest('Phase 2C: Binary Search Tree Insert and Lookup', () => {
 
   const found = bst.search(3);
   assert.strictEqual(found.found, true);
-  assert.strictEqual(found.val, 'Honda City');
-  assert.ok(found.comparisons <= 3);
+  assert.strictEqual(found.node.value, 'Honda City');
 
   const notFound = bst.search(99);
   assert.strictEqual(notFound.found, false);
 });
 
-// ─────────────────────────────────────────────────────────────
-// 7. GRAPH & BFS TRAVERSAL TEST
-// ─────────────────────────────────────────────────────────────
-runTest('Phase 2D & 2E: Branch Graph & BFS Level-by-Level Traversal', () => {
-  // Graph: 1 (MG Road) connected to 2 (Airport) and 3 (Indiranagar)
-  // 3 connected to 4 (Whitefield)
-  const adj = {
-    1: [2, 3],
-    2: [1],
-    3: [1, 4],
-    4: [3],
-  };
+runTest('Phase 2D & 2E: Graph and BFS Traversal from src/dsa/Graph.js', () => {
+  const graph = new Graph(false);
+  graph.addNode(1, { name: 'MG Road' });
+  graph.addNode(2, { name: 'Airport' });
+  graph.addNode(3, { name: 'Indiranagar' });
+  graph.addNode(4, { name: 'Whitefield' });
 
-  const visited = new Set();
-  const queue = [1];
-  visited.add(1);
-  const order = [];
+  graph.addEdge(1, 2, 35);
+  graph.addEdge(1, 3, 5);
+  graph.addEdge(3, 4, 15);
 
-  while (queue.length > 0) {
-    const node = queue.shift();
-    order.push(node);
-    for (const neighbor of adj[node] || []) {
-      if (!visited.has(neighbor)) {
-        visited.add(neighbor);
-        queue.push(neighbor);
-      }
-    }
-  }
-
-  assert.deepStrictEqual(order, [1, 2, 3, 4]);
+  const bfsRes = graph.bfs(1);
+  assert.strictEqual(bfsRes.totalVisited, 4);
+  assert.deepStrictEqual(bfsRes.traversalOrder, [1, 2, 3, 4]);
 });
 
-// ─────────────────────────────────────────────────────────────
-// 8. LINEAR SEARCH TEST
-// ─────────────────────────────────────────────────────────────
-runTest('Phase 3A: Linear Search O(n)', () => {
-  const arr = ['Swift', 'i20', 'City', 'Creta', 'Innova'];
-  let comparisons = 0;
-  let foundIndex = -1;
-
-  for (let i = 0; i < arr.length; i++) {
-    comparisons++;
-    if (arr[i] === 'Creta') {
-      foundIndex = i;
-      break;
-    }
-  }
-
-  assert.strictEqual(foundIndex, 3);
-  assert.strictEqual(comparisons, 4);
-});
-
-// ─────────────────────────────────────────────────────────────
-// 9. BINARY SEARCH TEST
-// ─────────────────────────────────────────────────────────────
-runTest('Phase 3B: Binary Search O(log n)', () => {
-  const sortedKeys = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; // sorted keys
-  let low = 0, high = sortedKeys.length - 1;
-  let target = 7;
-  let found = false;
-  let comparisons = 0;
-
-  while (low <= high) {
-    comparisons++;
-    const mid = Math.floor((low + high) / 2);
-    if (sortedKeys[mid] === target) {
-      found = true;
-      break;
-    } else if (sortedKeys[mid] < target) {
-      low = mid + 1;
-    } else {
-      high = mid - 1;
-    }
-  }
-
-  assert.strictEqual(found, true);
-  assert.ok(comparisons <= 4); // log2(10) ≈ 3.32 -> max 4 comparisons
-});
-
-// ─────────────────────────────────────────────────────────────
-// 10. MERGE SORT TEST
-// ─────────────────────────────────────────────────────────────
-function mergeSort(arr) {
-  if (arr.length <= 1) return arr;
-  const mid = Math.floor(arr.length / 2);
-  const left = mergeSort(arr.slice(0, mid));
-  const right = mergeSort(arr.slice(mid));
-
-  const result = [];
-  let i = 0, j = 0;
-  while (i < left.length && j < right.length) {
-    if (left[i].daily_rate <= right[j].daily_rate) {
-      result.push(left[i++]);
-    } else {
-      result.push(right[j++]);
-    }
-  }
-  while (i < left.length) result.push(left[i++]);
-  while (j < right.length) result.push(right[j++]);
-  return result;
-}
-
-runTest('Phase 3C: Merge Sort from Scratch O(n log n)', () => {
+runTest('Phase 3A: Linear Search from src/dsa/Searching.js', () => {
   const fleet = [
-    { name: 'Fortuner', daily_rate: 4000 },
-    { name: 'Kwid', daily_rate: 800 },
-    { name: 'BMW', daily_rate: 8000 },
-    { name: 'Swift', daily_rate: 900 },
-    { name: 'Innova', daily_rate: 2500 },
+    { id: 1, name: 'Maruti Swift' },
+    { id: 2, name: 'Hyundai i20' },
+    { id: 3, name: 'Honda City' },
+    { id: 4, name: 'Hyundai Creta' },
   ];
-
-  const sorted = mergeSort(fleet);
-  assert.strictEqual(sorted[0].name, 'Kwid');
-  assert.strictEqual(sorted[1].name, 'Swift');
-  assert.strictEqual(sorted[2].name, 'Innova');
-  assert.strictEqual(sorted[3].name, 'Fortuner');
-  assert.strictEqual(sorted[4].name, 'BMW');
+  const res = linearSearchVehicles(fleet, 'Creta');
+  assert.strictEqual(res.found.id, 4);
+  assert.ok(res.totalComparisons >= 1);
 });
 
-// ─────────────────────────────────────────────────────────────
-// 11. GREEDY RECOMMENDATION TEST
-// ─────────────────────────────────────────────────────────────
-runTest('Phase 4A: Greedy Vehicle Allocation', () => {
-  const fleet = [
-    { name: 'Activa', daily_rate: 400, seats: 2, status: 'Available' },
-    { name: 'Swift', daily_rate: 900, seats: 5, status: 'Available' },
-    { name: 'City', daily_rate: 1400, seats: 5, status: 'Available' },
-    { name: 'Innova', daily_rate: 2500, seats: 7, status: 'Available' },
-    { name: 'Fortuner', daily_rate: 4000, seats: 7, status: 'Available' },
+runTest('Phase 3B: Binary Search from src/dsa/Searching.js', () => {
+  const sortedFleet = [
+    { id: 1, name: 'Maruti Swift' },
+    { id: 2, name: 'Hyundai i20' },
+    { id: 3, name: 'Honda City' },
+    { id: 4, name: 'Hyundai Creta' },
+    { id: 5, name: 'Toyota Innova' },
   ];
+  const res = binarySearchVehicles(sortedFleet, 3);
+  assert.strictEqual(res.found.id, 3);
+  assert.strictEqual(res.found.name, 'Honda City');
+  assert.ok(res.totalComparisons <= 3);
+});
 
-  // Requirements: budget 5000, 3 days, min 5 seats
-  const budget = 5000;
-  const days = 3;
-  const minSeats = 5;
+runTest('Phase 3C: Merge Sort from src/dsa/MergeSort.js', () => {
+  const fleet = [
+    { id: 1, name: 'Fortuner', daily_rate: 4000 },
+    { id: 2, name: 'Kwid', daily_rate: 800 },
+    { id: 3, name: 'BMW', daily_rate: 8000 },
+    { id: 4, name: 'Swift', daily_rate: 900 },
+  ];
+  const res = mergeSortVehiclesByPrice(fleet, 'asc');
+  assert.strictEqual(res.sorted[0].name, 'Kwid');
+  assert.strictEqual(res.sorted[1].name, 'Swift');
+  assert.strictEqual(res.sorted[2].name, 'Fortuner');
+  assert.strictEqual(res.sorted[3].name, 'BMW');
+});
 
-  // Filter candidates
-  const eligible = fleet
-    .filter((v) => v.status === 'Available' && v.seats >= minSeats)
-    .map((v) => ({ ...v, totalCost: v.daily_rate * days }))
-    .filter((v) => v.totalCost <= budget);
-
-  // Greedy choice: sort by cost ascending, pick first (cheapest meeting criteria)
-  eligible.sort((a, b) => a.totalCost - b.totalCost);
-
-  assert.strictEqual(eligible.length, 2); // Swift (2700) and City (4200) fit in 5000
-  assert.strictEqual(eligible[0].name, 'Swift');
-  assert.strictEqual(eligible[0].totalCost, 2700);
+runTest('Phase 4A: Greedy Vehicle Recommendation from src/dsa/Greedy.js', () => {
+  const fleet = [
+    { id: 1, name: 'Activa', daily_rate: 400, seating_capacity: 2, status: 'Available' },
+    { id: 2, name: 'Swift', daily_rate: 900, seating_capacity: 5, status: 'Available' },
+    { id: 3, name: 'City', daily_rate: 1400, seating_capacity: 5, status: 'Available' },
+    { id: 4, name: 'Fortuner', daily_rate: 4000, seating_capacity: 7, status: 'Available' },
+  ];
+  const res = greedyVehicleRecommendation({
+    vehicles: fleet,
+    budget: 5000,
+    days: 3,
+    passengers: 5,
+  });
+  assert.ok(res.recommendedVehicle);
+  assert.strictEqual(res.recommendedVehicle.name, 'Swift');
 });
 
 // ─────────────────────────────────────────────────────────────

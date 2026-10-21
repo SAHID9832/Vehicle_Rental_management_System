@@ -101,7 +101,7 @@ CREATE TABLE branches (
     city         VARCHAR(80)    NOT NULL DEFAULT 'Bengaluru',
     state        VARCHAR(80)    NOT NULL DEFAULT 'Karnataka',
     pincode      VARCHAR(10)    NOT NULL,
-    phone        VARCHAR(15)    NOT NULL,
+    phone        VARCHAR(50)    NOT NULL,
     email        VARCHAR(150)   NOT NULL,
     manager_name VARCHAR(120)   NOT NULL,
     latitude     DECIMAL(10,7)  NOT NULL,

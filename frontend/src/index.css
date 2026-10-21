@@ -108,3 +108,68 @@
     @apply text-teal-400 font-bold text-lg mx-1;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Movo Logo Opening Slide-Up Animations
+   ───────────────────────────────────────────────────────────── */
+@keyframes movoSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(50px) scale(0.92);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-6px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes movoSplashSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(70px) scale(0.86);
+  }
+  35% {
+    opacity: 1;
+    transform: translateY(0px) scale(1);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(-25px) scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-95px) scale(0.92);
+  }
+}
+
+@keyframes movoSplashFade {
+  0% {
+    opacity: 1;
+    visibility: visible;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+.animate-movo-slide-up {
+  animation: movoSlideUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-movo-splash-overlay {
+  animation: movoSplashFade 1.6s ease-in-out forwards;
+}
+
+.animate-movo-splash-logo {
+  animation: movoSplashSlideUp 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+

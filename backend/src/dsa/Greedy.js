@@ -59,6 +59,7 @@ function greedyVehicleRecommendation({ vehicles, budget, days, passengers, prefe
           savings: parseFloat((b - Number(recommended.daily_rate) * d).toFixed(2)),
         }
       : null,
+    recommendedVehicle: recommended,
   };
 }
 

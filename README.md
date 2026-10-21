@@ -55,15 +55,14 @@
 
 ---
 
-## 📋 Demo Credentials for Academic Evaluation
+## 🔐 System Access Credentials & Role Hierarchy
 
-| Role | Email | Password | Access Level |
+| Role | Email | Password | Access Level & Core Responsibilities |
 |---|---|---|---|
-| **System Admin** | `admin@vektor.in` | `Admin@123` | Full access to Admin Dashboard, Fleet CRUD, and DSA Lab |
-| **Customer** | `arjun@gmail.com` | `Password@123` | Customer booking, profile, and rental history |
-| **Customer (Alt)** | `priya@gmail.com` | `Password@123` | Customer portal |
+| **System & Web Administrator** | `admin@vektor.in` | `Admin@123` | **Full Governance & Web Admin**: Site Configuration, Fleet Inventory CRUD, Customer Account Management & Deletion, Hub Network Graph, Billing Ledgers, Security & Backup Management. |
+| **Customer** | `arjun.sharma@gmail.com` | `Password@123` | **Public Customer Portal**: Browse Indian vehicle fleet, multi-angle galleries, self-register new accounts anytime, book rentals, and manage invoices. |
 
-*Note: The login page also features one-click demo login buttons for instant evaluation.*
+*Customers can freely register fresh accounts at any time via the `/auth?mode=register` portal.*
 
 ---
 
@@ -80,7 +79,7 @@
    ```bash
    mysql -u root -p < database/schema.sql
    ```
-3. Seed the sample dataset (18 vehicles, 10 customers, 5 hubs, 12 bookings, 5 rentals):
+3. Seed the sample dataset (24 vehicles across Pan-India categories, 10 customers, 24 hubs in 10+ states, 12 bookings, 5 rentals):
    ```bash
    mysql -u root -p < database/seed.sql
    ```

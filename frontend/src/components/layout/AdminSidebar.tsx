@@ -43,16 +43,16 @@ export default function AdminSidebar() {
       {/* Brand header */}
       <div className="p-5 border-b border-slate-800">
         <Link to="/" className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-teal-500 flex items-center justify-center text-white font-bold">
-            <Car className="w-5 h-5 stroke-[2.2]" />
+          <div className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shrink-0 shadow-xs">
+            <img src="/movo-logo.png" alt="Movo Logo" className="w-full h-full object-contain" />
           </div>
           <div>
             <div className="flex items-center gap-1">
-              <span className="text-lg font-black tracking-tight text-white">VEKTOR</span>
+              <span className="text-lg font-black tracking-tight text-white">MOVO</span>
               <span className="text-lg font-light tracking-tight text-teal-400">ADMIN</span>
             </div>
-            <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
-              Fleet Operations
+            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+              Move Your Way
             </p>
           </div>
         </Link>

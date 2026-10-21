@@ -56,6 +56,10 @@ export interface BranchConnection {
   is_active: boolean;
   from_branch_name?: string;
   to_branch_name?: string;
+  from_city?: string;
+  to_city?: string;
+  from_state?: string;
+  to_state?: string;
 }
 
 export interface Vehicle {
@@ -69,6 +73,8 @@ export interface Vehicle {
   category_name?: string;
   branch_id: number;
   branch_name?: string;
+  branch_city?: string;
+  branch_state?: string;
   color: string;
   fuel_type: 'Petrol' | 'Diesel' | 'Electric' | 'CNG' | 'Hybrid';
   transmission: 'Manual' | 'Automatic';
@@ -80,6 +86,7 @@ export interface Vehicle {
   image_url: string;
   description: string;
   features: string[];
+  image_views?: Array<{ view: string; path: string; license?: string; attribution?: string; source_url?: string }>;
   status: 'Available' | 'Rented' | 'Reserved' | 'Maintenance' | 'Inactive';
   mileage: number;
   engine_cc: number;

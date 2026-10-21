@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { vehiclesApi } from '../../services/api';
 import { Vehicle } from '../../types';
-import { formatINR, getStatusColor, getVehicleImageUrl } from '../../utils';
+import { formatINR, getStatusColor, getVehicleImageUrl, getVehicleImageViews } from '../../utils';
 import { evaluateRentalCost } from '../../dsa/Stack';
 
 export default function VehicleDetailsPage() {
@@ -27,6 +27,7 @@ export default function VehicleDetailsPage() {
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   // Interactive Rental Days Estimate Calculator
   const [estimateDays, setEstimateDays] = useState(3);
@@ -75,6 +76,7 @@ export default function VehicleDetailsPage() {
 
   const isAvailable = vehicle.status === 'Available';
   const defaultImage = getVehicleImageUrl(vehicle);
+  const availableViews = getVehicleImageViews(vehicle);
 
   // Evaluate cost using Stack DSA
   const costEval = evaluateRentalCost(estimateDays, Number(vehicle.daily_rate), 0, 0);
@@ -91,6 +93,16 @@ export default function VehicleDetailsPage() {
     features = ['AC', 'Airbags', 'ABS', 'Touchscreen Infotainment'];
   }
 
+  const currentDisplayImage =
+    availableViews.length > 0 && availableViews[selectedImageIndex]
+      ? availableViews[selectedImageIndex].path
+      : defaultImage;
+
+  const currentViewMeta =
+    availableViews.length > 0 && availableViews[selectedImageIndex]
+      ? availableViews[selectedImageIndex]
+      : null;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Breadcrumb Navigation */}
@@ -106,16 +118,27 @@ export default function VehicleDetailsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left 2 Cols: Photography & Specifications */}
         <div className="lg:col-span-2 space-y-8">
-          {/* Main Visual */}
+          {/* Main Visual & Multi-View Carousel */}
           <div className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-xs relative">
-            <div className="h-96 sm:h-[450px] bg-slate-100 relative">
+            <div className="h-96 sm:h-[450px] bg-slate-100 relative overflow-hidden group">
               <img
-                src={defaultImage}
+                src={currentDisplayImage}
                 alt={vehicle.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80';
+                  const target = e.target as HTMLImageElement;
+                  const fallback = getVehicleImageUrl({
+                    name: vehicle.name,
+                    brand: vehicle.brand,
+                    model: vehicle.model,
+                    category_name: vehicle.category_name,
+                  });
+                  if (target.src !== fallback) {
+                    target.src = fallback;
+                  } else {
+                    target.src =
+                      'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80';
+                  }
                 }}
               />
 
@@ -130,12 +153,50 @@ export default function VehicleDetailsPage() {
                 </span>
               </div>
 
-              <div className="absolute top-4 right-4">
+              <div className="absolute top-4 right-4 flex items-center gap-2">
+                {currentViewMeta?.view && (
+                  <span className="px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-teal-900/80 text-teal-200 backdrop-blur-md">
+                    {currentViewMeta.view} View
+                  </span>
+                )}
                 <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900/80 text-white backdrop-blur-md">
                   {vehicle.vehicle_id}
                 </span>
               </div>
             </div>
+
+            {/* Multi-angle Thumbnail Bar */}
+            {availableViews.length > 1 && (
+              <div className="p-4 bg-gray-50 border-t border-gray-100 flex items-center gap-3 overflow-x-auto">
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider shrink-0 pl-1">
+                  Angles ({availableViews.length}):
+                </span>
+                {availableViews.map((v, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedImageIndex(i)}
+                    className={`relative rounded-xl overflow-hidden border-2 transition-all shrink-0 w-20 h-14 ${
+                      selectedImageIndex === i
+                        ? 'border-teal-600 ring-2 ring-teal-600/30 scale-105'
+                        : 'border-transparent opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    <img src={v.path} alt={v.view} className="w-full h-full object-cover" />
+                    <span className="absolute bottom-0 inset-x-0 bg-slate-900/80 text-[10px] text-white font-semibold text-center capitalize py-0.5">
+                      {v.view}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Attribution note if available */}
+            {currentViewMeta?.attribution && (
+              <div className="px-6 py-2 bg-slate-50 text-[11px] text-gray-500 border-t border-gray-100 flex items-center justify-between">
+                <span>Photo: {currentViewMeta.attribution}</span>
+                {currentViewMeta.license && <span>License: {currentViewMeta.license}</span>}
+              </div>
+            )}
 
             <div className="p-6 sm:p-8 space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-2">

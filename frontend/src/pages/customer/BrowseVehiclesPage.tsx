@@ -14,9 +14,10 @@ import {
 import { vehiclesApi, branchesApi } from '../../services/api';
 import { Vehicle, Branch, VehicleCategory } from '../../types';
 import VehicleCard from '../../components/vehicles/VehicleCard';
-import { formatINR } from '../../utils';
+import { formatINR, getVehicleImageViews } from '../../utils';
 import { sortVehiclesByPrice } from '../../dsa/mergeSort';
 import { linearSearch } from '../../dsa/searching';
+import { greedyRecommend } from '../../dsa/greedyRecommendation';
 
 export default function BrowseVehiclesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -29,13 +30,52 @@ export default function BrowseVehiclesPage() {
   // Filter States
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
+  const [selectedState, setSelectedState] = useState(searchParams.get('state') || '');
   const [selectedBranch, setSelectedBranch] = useState(searchParams.get('branch') || '');
+  const [pickupDate, setPickupDate] = useState(
+    searchParams.get('pickupDate') || searchParams.get('pickup') || ''
+  );
+  const [returnDate, setReturnDate] = useState(
+    searchParams.get('returnDate') || searchParams.get('return') || ''
+  );
   const [selectedFuel, setSelectedFuel] = useState('');
   const [selectedTransmission, setSelectedTransmission] = useState('');
   const [selectedSeats, setSelectedSeats] = useState<number | ''>('');
   const [priceSort, setPriceSort] = useState<'none' | 'asc' | 'desc'>('none');
   const [onlyAvailable, setOnlyAvailable] = useState(false);
   const [maxPrice, setMaxPrice] = useState<number>(15000);
+
+  // Greedy Recommendation State
+  const [greedyOpen, setGreedyOpen] = useState(false);
+  const [greedyBudget, setGreedyBudget] = useState(10000);
+  const [greedyDays, setGreedyDays] = useState(3);
+  const [greedyMinSeats, setGreedyMinSeats] = useState(5);
+  const [greedyResult, setGreedyResult] = useState<any>(null);
+
+  // Sync state with search params if navigated with new params
+  useEffect(() => {
+    const st = searchParams.get('state');
+    if (st) setSelectedState(st);
+    const cat = searchParams.get('category');
+    if (cat) setSelectedCategory(cat);
+    const br = searchParams.get('branch');
+    if (br) setSelectedBranch(br);
+    const q = searchParams.get('q');
+    if (q) setSearchQuery(q);
+    const pDate = searchParams.get('pickupDate') || searchParams.get('pickup');
+    if (pDate) setPickupDate(pDate);
+    const rDate = searchParams.get('returnDate') || searchParams.get('return');
+    if (rDate) setReturnDate(rDate);
+  }, [searchParams]);
+
+  // Extract unique states across branches
+  const uniqueStates = useMemo(() => {
+    const states = new Set<string>();
+    branches.forEach((b) => {
+      if (b.state) states.add(b.state);
+    });
+    return Array.from(states).sort();
+  }, [branches]);
 
   // DSA Sort metadata
   const [mergeSortInfo, setMergeSortInfo] = useState<{
@@ -55,8 +95,12 @@ export default function BrowseVehiclesPage() {
           vehiclesApi.getCategories(),
         ]);
 
-        const allVehicles = vehRes.data.data?.data || vehRes.data.data || [];
-        setVehicles(allVehicles);
+        const rawVehicles = vehRes.data.data?.data || vehRes.data.data || [];
+        const enriched = rawVehicles.map((v: Vehicle) => ({
+          ...v,
+          image_views: getVehicleImageViews(v),
+        }));
+        setVehicles(enriched);
         setBranches(branchRes.data.data || []);
         setCategories(catRes.data.data || []);
       } catch (err) {
@@ -84,7 +128,17 @@ export default function BrowseVehiclesPage() {
       );
     }
 
-    // 2. Category filter
+    // 2. State filter (Pan-India)
+    if (selectedState) {
+      const targetState = selectedState.toLowerCase();
+      result = result.filter((v) => {
+        if (v.branch_state && v.branch_state.toLowerCase() === targetState) return true;
+        const b = branches.find((br) => br.id === v.branch_id);
+        return b && b.state.toLowerCase() === targetState;
+      });
+    }
+
+    // 3. Category filter
     if (selectedCategory) {
       result = result.filter(
         (v) =>
@@ -93,37 +147,37 @@ export default function BrowseVehiclesPage() {
       );
     }
 
-    // 3. Branch filter
+    // 4. Branch filter
     if (selectedBranch) {
       result = result.filter((v) => String(v.branch_id) === selectedBranch);
     }
 
-    // 4. Fuel type
+    // 5. Fuel type
     if (selectedFuel) {
       result = result.filter((v) => v.fuel_type === selectedFuel);
     }
 
-    // 5. Transmission
+    // 6. Transmission
     if (selectedTransmission) {
       result = result.filter((v) => v.transmission === selectedTransmission);
     }
 
-    // 6. Seating capacity
+    // 7. Seating capacity
     if (selectedSeats) {
       result = result.filter((v) => v.seating_capacity >= selectedSeats);
     }
 
-    // 7. Max price filter
+    // 8. Max price filter
     if (maxPrice < 15000) {
       result = result.filter((v) => Number(v.daily_rate) <= maxPrice);
     }
 
-    // 8. Availability status
+    // 9. Availability status
     if (onlyAvailable) {
       result = result.filter((v) => v.status === 'Available');
     }
 
-    // 9. Custom Merge Sort execution
+    // 10. Custom Merge Sort execution
     if (priceSort === 'asc' || priceSort === 'desc') {
       const sortResult = sortVehiclesByPrice(result, priceSort);
       result = sortResult.sorted;
@@ -132,7 +186,9 @@ export default function BrowseVehiclesPage() {
     return result;
   }, [
     vehicles,
+    branches,
     searchQuery,
+    selectedState,
     selectedCategory,
     selectedBranch,
     selectedFuel,
@@ -159,10 +215,24 @@ export default function BrowseVehiclesPage() {
     }
   };
 
+  const handleRunGreedy = () => {
+    const res = greedyRecommend(vehicles as any, {
+      budget: greedyBudget,
+      rentalDays: greedyDays,
+      minSeating: greedyMinSeats,
+      categoryId: selectedCategory ? Number(categories.find(c => c.name === selectedCategory)?.id) : undefined,
+      branchId: selectedBranch ? Number(selectedBranch) : undefined,
+    });
+    setGreedyResult(res);
+  };
+
   const handleResetFilters = () => {
     setSearchQuery('');
     setSelectedCategory('');
+    setSelectedState('');
     setSelectedBranch('');
+    setPickupDate('');
+    setReturnDate('');
     setSelectedFuel('');
     setSelectedTransmission('');
     setSelectedSeats('');
@@ -171,6 +241,7 @@ export default function BrowseVehiclesPage() {
     setMaxPrice(15000);
     setSearchParams({});
     setMergeSortInfo({ comparisons: 0, passes: 0, active: false });
+    setGreedyResult(null);
   };
 
   return (
@@ -180,20 +251,116 @@ export default function BrowseVehiclesPage() {
         <div>
           <h1 className="text-3xl font-black text-gray-900 tracking-tight">Browse Fleet Vehicles</h1>
           <p className="text-sm text-gray-600 mt-1">
-            Search, filter, and sort all available vehicles across Bengaluru hubs.
+            Search, filter, and sort all available vehicles across Pan-India hubs (24 locations in 10+ states).
           </p>
         </div>
 
-        {/* DSA Merge Sort Notification Badge */}
-        {mergeSortInfo.active && (
-          <div className="flex items-center gap-2 bg-teal-50 border border-teal-200 text-teal-800 text-xs px-3.5 py-2 rounded-xl">
-            <Cpu className="w-4 h-4 text-teal-600" />
-            <span>
-              <strong>Merge Sort:</strong> {mergeSortInfo.comparisons} comparisons, {mergeSortInfo.passes} merge passes • O(n log n)
-            </span>
-          </div>
-        )}
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={() => {
+              setGreedyOpen(!greedyOpen);
+              if (!greedyResult) handleRunGreedy();
+            }}
+            className="flex items-center gap-2 bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm hover:from-teal-700 hover:to-emerald-700 transition-all"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>⚡ Smart Greedy Match</span>
+          </button>
+
+          {/* DSA Merge Sort Notification Badge */}
+          {mergeSortInfo.active && (
+            <div className="flex items-center gap-2 bg-teal-50 border border-teal-200 text-teal-800 text-xs px-3.5 py-2 rounded-xl">
+              <Cpu className="w-4 h-4 text-teal-600" />
+              <span>
+                <strong>Merge Sort:</strong> {mergeSortInfo.comparisons} comparisons, {mergeSortInfo.passes} passes
+              </span>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Greedy Recommendation Drawer / Panel */}
+      {greedyOpen && (
+        <div className="bg-emerald-50/70 border border-emerald-200 p-6 rounded-3xl space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-emerald-700" />
+              <h2 className="text-sm font-black text-emerald-950 uppercase tracking-wider">
+                Phase 4A: Greedy Vehicle Recommendation Engine
+              </h2>
+            </div>
+            <button
+              onClick={() => setGreedyOpen(false)}
+              className="text-xs text-gray-500 hover:text-gray-800"
+            >
+              ✕ Close
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
+            <div>
+              <label className="font-bold text-gray-700 block mb-1">Max Budget (₹)</label>
+              <input
+                type="number"
+                value={greedyBudget}
+                onChange={(e) => setGreedyBudget(Number(e.target.value))}
+                className="w-full px-3 py-2 rounded-xl border border-emerald-300 bg-white"
+              />
+            </div>
+            <div>
+              <label className="font-bold text-gray-700 block mb-1">Rental Days</label>
+              <input
+                type="number"
+                value={greedyDays}
+                min="1"
+                onChange={(e) => setGreedyDays(Number(e.target.value))}
+                className="w-full px-3 py-2 rounded-xl border border-emerald-300 bg-white"
+              />
+            </div>
+            <div>
+              <label className="font-bold text-gray-700 block mb-1">Min Seats</label>
+              <input
+                type="number"
+                value={greedyMinSeats}
+                min="2"
+                onChange={(e) => setGreedyMinSeats(Number(e.target.value))}
+                className="w-full px-3 py-2 rounded-xl border border-emerald-300 bg-white"
+              />
+            </div>
+            <div className="flex items-end">
+              <button
+                onClick={handleRunGreedy}
+                className="w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl shadow-xs"
+              >
+                Compute Optimal Vehicle
+              </button>
+            </div>
+          </div>
+
+          {greedyResult && (
+            <div className="p-4 bg-white rounded-2xl border border-emerald-200 text-xs space-y-2">
+              <p className="font-bold text-emerald-900">{greedyResult.reason}</p>
+              {greedyResult.recommendation ? (
+                <div className="flex items-center justify-between pt-1">
+                  <div>
+                    <span className="font-black text-gray-900 text-sm">
+                      {greedyResult.recommendation.name}
+                    </span>
+                    <span className="text-gray-500 ml-2">
+                      ({greedyResult.recommendation.seating_capacity} seats • {greedyResult.recommendation.fuel_type})
+                    </span>
+                  </div>
+                  <span className="text-emerald-700 font-extrabold text-sm">
+                    {formatINR(greedyResult.estimatedCost)} total
+                  </span>
+                </div>
+              ) : (
+                <p className="text-red-600">No vehicles met all constraints. Try increasing your budget.</p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Main Filter and Catalog Area */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -223,7 +390,7 @@ export default function BrowseVehiclesPage() {
                 <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" />
                 <input
                   type="text"
-                  placeholder="Swift, Creta, Fortuner..."
+                  placeholder="Swift, Creta, Fortuner, Thar..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none"
@@ -231,22 +398,57 @@ export default function BrowseVehiclesPage() {
               </div>
             </div>
 
+            {/* Pan-India State Filter */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                State / Region
+              </label>
+              <select
+                value={selectedState}
+                onChange={(e) => {
+                  setSelectedState(e.target.value);
+                  if (e.target.value && selectedBranch) {
+                    const currentBranch = branches.find((b) => String(b.id) === selectedBranch);
+                    if (currentBranch && currentBranch.state !== e.target.value) {
+                      setSelectedBranch('');
+                    }
+                  }
+                }}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none bg-white font-medium text-gray-800"
+              >
+                <option value="">All States (Pan-India)</option>
+                {uniqueStates.map((st) => (
+                  <option key={st} value={st}>
+                    {st}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Hub / Branch */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">
-                Bengaluru Hub
+                Pickup Hub
               </label>
               <select
                 value={selectedBranch}
                 onChange={(e) => setSelectedBranch(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none bg-white"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none bg-white text-gray-800"
               >
-                <option value="">All Hubs</option>
-                {branches.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name}
-                  </option>
-                ))}
+                <option value="">All Hubs ({branches.length} locations)</option>
+                {uniqueStates
+                  .filter((st) => !selectedState || st === selectedState)
+                  .map((st) => (
+                    <optgroup key={st} label={st}>
+                      {branches
+                        .filter((b) => b.state === st)
+                        .map((b) => (
+                          <option key={b.id} value={b.id}>
+                            {b.city}: {b.name}
+                          </option>
+                        ))}
+                    </optgroup>
+                  ))}
               </select>
             </div>
 

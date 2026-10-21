@@ -1,0 +1,727 @@
+{
+  "VH-101": {
+    "vid": "VH-101",
+    "make": "Maruti",
+    "model": "Maruti Suzuki Wagon R",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-101/primary.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Andra Febrian",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2013_Maruti_Suzuki_Wagon_R_Stingray_VXi_front_view.jpg"
+      },
+      "front": {
+        "view": "front",
+        "path": "/images/VH-101/front.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Andra Febrian",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2013_Maruti_Suzuki_Wagon_R_Stingray_VXi_front_view.jpg"
+      },
+      "rear": {
+        "view": "rear",
+        "path": "/images/VH-101/rear.jpg",
+        "license": "CC BY-SA 2.0 (https://creativecommons.org/licenses/by-sa/2.0)",
+        "attribution": "William J Sisti  from Morristown, NJ, USA",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Maruti_Suzuki_Wagon_R_LX_(rear).jpg"
+      }
+    }
+  },
+  "VH-102": {
+    "vid": "VH-102",
+    "make": "Maruti",
+    "model": "Maruti Suzuki Swift",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-102/primary.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Vauxford",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2018_Suzuki_Swift_SZ5_Boosterjet_SHVS_1.0_Front.jpg"
+      },
+      "front": {
+        "view": "front",
+        "path": "/images/VH-102/front.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Vauxford",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2018_Suzuki_Swift_SZ5_Boosterjet_SHVS_1.0_Front.jpg"
+      }
+    }
+  },
+  "VH-103": {
+    "vid": "VH-103",
+    "make": "Hyundai",
+    "model": "Hyundai i20",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-103/primary.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Vauxford",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2018_Hyundai_i20_SE_MPi_1.2_Front.jpg"
+      },
+      "front": {
+        "view": "front",
+        "path": "/images/VH-103/front.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Vauxford",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2018_Hyundai_i20_SE_MPi_1.2_Front.jpg"
+      },
+      "rear": {
+        "view": "rear",
+        "path": "/images/VH-103/rear.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Jakub CA",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Hyundai_i20_(GB-IB;_2014)_rear.jpg"
+      }
+    }
+  },
+  "VH-104": {
+    "vid": "VH-104",
+    "make": "Tata",
+    "model": "Tata Tiago",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-104/primary.jpg",
+        "license": "CC0 (http://creativecommons.org/publicdomain/zero/1.0/deed.en)",
+        "attribution": "Parespeare",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2019_Tata_Tiago_XZ_(front_three-quarter_view)_(pre-facelift).jpg"
+      },
+      "front": {
+        "view": "front",
+        "path": "/images/VH-104/front.jpg",
+        "license": "CC0 (http://creativecommons.org/publicdomain/zero/1.0/deed.en)",
+        "attribution": "Parespeare",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2019_Tata_Tiago_XZ_(front_three-quarter_view)_(pre-facelift).jpg"
+      },
+      "rear": {
+        "view": "rear",
+        "path": "/images/VH-104/rear.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Dairokkan9",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2022_Tata_Tiago_XZA%2B_rear_20230512.jpg"
+      }
+    }
+  },
+  "VH-201": {
+    "vid": "VH-201",
+    "make": "Maruti",
+    "model": "Maruti Suzuki Dzire",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-201/primary.jpg",
+        "license": "CC BY 3.0 (https://creativecommons.org/licenses/by/3.0)",
+        "attribution": "Biswarup Ganguly",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Maruti_Suzuki_Dzire_VXi_VVT_(front).JPG"
+      },
+      "front": {
+        "view": "front",
+        "path": "/images/VH-201/front.jpg",
+        "license": "CC BY 3.0 (https://creativecommons.org/licenses/by/3.0)",
+        "attribution": "Biswarup Ganguly",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Maruti_Suzuki_Dzire_VXi_VVT_(front).JPG"
+      },
+      "rear": {
+        "view": "rear",
+        "path": "/images/VH-201/rear.jpg",
+        "license": "CC BY 3.0 (https://creativecommons.org/licenses/by/3.0)",
+        "attribution": "Biswarup Ganguly",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Maruti_Suzuki_Dzire_VXi_VVT_(rear).JPG"
+      },
+      "interior": {
+        "view": "interior",
+        "path": "/images/VH-201/interior.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Ethan Llamas",
+        "source_url": "https://commons.wikimedia.org/wiki/File:MIAS_2025_-_All-new_Suzuki_Dzire_Hybrid_05.jpg"
+      }
+    }
+  },
+  "VH-202": {
+    "vid": "VH-202",
+    "make": "Honda",
+    "model": "Honda City 5th Gen",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-202/primary.jpeg",
+        "license": "",
+        "attribution": "",
+        "source_url": ""
+      }
+    }
+  },
+  "VH-203": {
+    "vid": "VH-203",
+    "make": "Hyundai",
+    "model": "Hyundai Verna",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-203/primary.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Vauxford",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2002_Hyundai_Accent_GSi_1.3_Front.jpg"
+      },
+      "front": {
+        "view": "front",
+        "path": "/images/VH-203/front.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Vauxford",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2002_Hyundai_Accent_GSi_1.3_Front.jpg"
+      },
+      "rear": {
+        "view": "rear",
+        "path": "/images/VH-203/rear.jpg",
+        "license": "Public domain",
+        "attribution": "OSX",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2000-2003_Hyundai_Accent_(LC)_GL_3-door_hatchback_(2011-04-22).jpg"
+      }
+    }
+  },
+  "VH-301": {
+    "vid": "VH-301",
+    "make": "Tata",
+    "model": "Tata Nexon",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-301/primary.png",
+        "license": "CC BY 3.0 (https://creativecommons.org/licenses/by/3.0)",
+        "attribution": "DriveSpark",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2020_Tata_Nexon_EV_(India)_front_view.png"
+      },
+      "front": {
+        "view": "front",
+        "path": "/images/VH-301/front.png",
+        "license": "CC BY 3.0 (https://creativecommons.org/licenses/by/3.0)",
+        "attribution": "DriveSpark",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2020_Tata_Nexon_EV_(India)_front_view.png"
+      },
+      "rear": {
+        "view": "rear",
+        "path": "/images/VH-301/rear.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Dairokkan9",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2023_Tata_Nexon_XZA%2B_rear_view.jpg"
+      }
+    }
+  },
+  "VH-302": {
+    "vid": "VH-302",
+    "make": "Hyundai",
+    "model": "Hyundai Creta",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-302/primary.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Ethan Llamas",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Hyundai_Creta_SU2_1.5_GLS_Magnetic_Silver_Metallic_2-tone_-_front.jpg"
+      },
+      "front": {
+        "view": "front",
+        "path": "/images/VH-302/front.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Ethan Llamas",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Hyundai_Creta_SU2_1.5_GLS_Magnetic_Silver_Metallic_2-tone_-_front.jpg"
+      },
+      "rear": {
+        "view": "rear",
+        "path": "/images/VH-302/rear.jpg",
+        "license": "CC0 (http://creativecommons.org/publicdomain/zero/1.0/deed.en)",
+        "attribution": "RichardSummersault",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Hyundai_Creta_(Rear)_(2),_Jakarta,_Indonesia.jpg"
+      }
+    }
+  },
+  "VH-303": {
+    "vid": "VH-303",
+    "make": "Mahindra",
+    "model": "Mahindra Thar 4x4",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-303/primary.jpg",
+        "license": "CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0)",
+        "attribution": "Ask27",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Mahindra_Thar_in_Mumbai_2012.JPG"
+      }
+    }
+  },
+  "VH-401": {
+    "vid": "VH-401",
+    "make": "Maruti",
+    "model": "Maruti Suzuki Ertiga",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-401/primary.jpg",
+        "license": "Public domain",
+        "attribution": "Ramakrishna Mission Vidyapith",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2022_Maruti_Suzuki_Ertiga_LXi.jpg"
+      }
+    }
+  },
+  "VH-402": {
+    "vid": "VH-402",
+    "make": "Toyota",
+    "model": "Toyota Innova Crysta",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-402/primary.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Ethan Llamas",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2014_Toyota_Innova_2.5_J_in_Silver_Metallic,_front_right.jpg"
+      },
+      "front": {
+        "view": "front",
+        "path": "/images/VH-402/front.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Ethan Llamas",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2014_Toyota_Innova_2.5_J_in_Silver_Metallic,_front_right.jpg"
+      },
+      "rear": {
+        "view": "rear",
+        "path": "/images/VH-402/rear.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Ethan Llamas",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Toyota_Innova_(AN40)_2.5_Sport_Runner_2011_(2).jpg"
+      },
+      "interior": {
+        "view": "interior",
+        "path": "/images/VH-402/interior.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Ethan Llamas",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2012_Toyota_Innova_2.5_G_interior.jpg"
+      },
+      "dashboard": {
+        "view": "dashboard",
+        "path": "/images/VH-402/dashboard.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Ethan Llamas",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2012_Toyota_Innova_2.5_G_interior.jpg"
+      }
+    }
+  },
+  "VH-403": {
+    "vid": "VH-403",
+    "make": "Mahindra",
+    "model": "Mahindra Scorpio-N",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-403/primary.jpeg",
+        "license": "",
+        "attribution": "",
+        "source_url": ""
+      }
+    }
+  },
+  "VH-404": {
+    "vid": "VH-404",
+    "make": "Toyota",
+    "model": "Toyota Fortuner 4x4",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-404/primary.jpeg",
+        "license": "",
+        "attribution": "",
+        "source_url": ""
+      }
+    }
+  },
+  "VH-501": {
+    "vid": "VH-501",
+    "make": "Honda",
+    "model": "Honda Activa 6G",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-501/primary.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Alka",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Honda_Activa_6G.jpg"
+      }
+    }
+  },
+  "VH-502": {
+    "vid": "VH-502",
+    "make": "Suzuki",
+    "model": "Suzuki Access 125",
+    "views": {}
+  },
+  "VH-503": {
+    "vid": "VH-503",
+    "make": "Royal",
+    "model": "Royal Enfield Classic 350",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-503/primary.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Javier Perez Montes",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Royal_Enfield_Classic_350_-_Gran_Via_-_Madrid_01.jpg"
+      },
+      "rear": {
+        "view": "rear",
+        "path": "/images/VH-503/rear.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Billyinthedarbies",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2022HBClassic350.jpg"
+      }
+    }
+  },
+  "VH-504": {
+    "vid": "VH-504",
+    "make": "Royal",
+    "model": "Royal Enfield Himalayan 450",
+    "views": {}
+  },
+  "VH-601": {
+    "vid": "VH-601",
+    "make": "Tata",
+    "model": "Tata Nexon EV",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-601/primary.png",
+        "license": "CC BY 3.0 (https://creativecommons.org/licenses/by/3.0)",
+        "attribution": "DriveSpark",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2020_Tata_Nexon_EV_(India)_front_view.png"
+      },
+      "front": {
+        "view": "front",
+        "path": "/images/VH-601/front.png",
+        "license": "CC BY 3.0 (https://creativecommons.org/licenses/by/3.0)",
+        "attribution": "DriveSpark",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2020_Tata_Nexon_EV_(India)_front_view.png"
+      },
+      "rear": {
+        "view": "rear",
+        "path": "/images/VH-601/rear.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Dairokkan9",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2023_Tata_Nexon_XZA%2B_rear_view.jpg"
+      }
+    }
+  },
+  "VH-602": {
+    "vid": "VH-602",
+    "make": "Tata",
+    "model": "Tata Tiago EV",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-602/primary.png",
+        "license": "CC BY 3.0 (https://creativecommons.org/licenses/by/3.0)",
+        "attribution": "DriveSpark",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2022_Tata_Tiago_EV_IB_XZ%2B_Tech_LR_front_view.png"
+      },
+      "front": {
+        "view": "front",
+        "path": "/images/VH-602/front.png",
+        "license": "CC BY 3.0 (https://creativecommons.org/licenses/by/3.0)",
+        "attribution": "DriveSpark",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2022_Tata_Tiago_EV_IB_XZ%2B_Tech_LR_front_view.png"
+      }
+    }
+  },
+  "VH-603": {
+    "vid": "VH-603",
+    "make": "Ather",
+    "model": "Ather 450X (Electric Scooter)",
+    "views": {}
+  },
+  "VH-701": {
+    "vid": "VH-701",
+    "make": "Force",
+    "model": "Force Tempo Traveller 12-Seater",
+    "views": {}
+  },
+  "VH-702": {
+    "vid": "VH-702",
+    "make": "Force",
+    "model": "Force Tempo Traveller 17/20-Seater",
+    "views": {}
+  },
+  "VH-703": {
+    "vid": "VH-703",
+    "make": "Force",
+    "model": "Force Urbania Luxury Van (13/17-Seater)",
+    "views": {}
+  },
+  "VH-801": {
+    "vid": "VH-801",
+    "make": "Mercedes-Benz",
+    "model": "Mercedes-Benz E-Class",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-801/primary.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Mohammed Hamad",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Mercedes_Benz_E-Class_W210_Police_Bahrain.jpg"
+      },
+      "front": {
+        "view": "front",
+        "path": "/images/VH-801/front.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Vauxford",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2019_Mercedes-Benz_E220d_SE_Automatic_2.0_Front.jpg"
+      }
+    }
+  },
+  "VH-802": {
+    "vid": "VH-802",
+    "make": "BMW",
+    "model": "BMW 5 Series / 3 Series Gran Limousine",
+    "views": {}
+  },
+  "VH-803": {
+    "vid": "VH-803",
+    "make": "Audi",
+    "model": "Audi A6",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-803/primary.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "User 3204",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2019_FAW-Audi_A6_L_(front).jpg"
+      },
+      "front": {
+        "view": "front",
+        "path": "/images/VH-803/front.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "User 3204",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2019_FAW-Audi_A6_L_(front).jpg"
+      }
+    }
+  },
+  "VH-804": {
+    "vid": "VH-804",
+    "make": "Toyota",
+    "model": "Toyota Vellfire Luxury MPV",
+    "views": {}
+  },
+  "VH-928": {
+    "vid": "VH-928",
+    "make": "Maruti Suzuki",
+    "model": "Maruti Suzuki Baleno",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-928/primary.jpg",
+        "license": "CC0 (http://creativecommons.org/publicdomain/zero/1.0/deed.en)",
+        "attribution": "Throwawayacc222",
+        "source_url": "https://commons.wikimedia.org/wiki/File:1996_Suzuki_Baleno_Kombi.jpg"
+      },
+      "front": {
+        "view": "front",
+        "path": "/images/VH-928/front.jpg",
+        "license": "CC0 (http://creativecommons.org/publicdomain/zero/1.0/deed.en)",
+        "attribution": "Throwawayacc222",
+        "source_url": "https://commons.wikimedia.org/wiki/File:1996_Suzuki_Baleno_Kombi.jpg"
+      },
+      "rear": {
+        "view": "rear",
+        "path": "/images/VH-928/rear.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "EurovisionNim",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2017_Suzuki_Baleno_(EW)_GL_hatchback_(2018-10-01)_01.jpg"
+      }
+    }
+  },
+  "VH-929": {
+    "vid": "VH-929",
+    "make": "Tata Motors",
+    "model": "Tata Motors Tiago",
+    "views": {
+      "rear": {
+        "view": "rear",
+        "path": "/images/VH-929/rear.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Thebanerscave",
+        "source_url": "https://commons.wikimedia.org/wiki/File:TATA_MOTORS_TIAGO.jpg"
+      }
+    }
+  },
+  "VH-930": {
+    "vid": "VH-930",
+    "make": "Honda",
+    "model": "Honda Amaze",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-930/primary.jpg",
+        "license": "CC BY 2.0 (https://creativecommons.org/licenses/by/2.0)",
+        "attribution": "TuRbO_J  from Adelaide, Australia",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2014_Honda_Brio_Satya_E.jpg"
+      },
+      "front": {
+        "view": "front",
+        "path": "/images/VH-930/front.png",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Agratsa",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Honda_Amaze_(front).png"
+      },
+      "side": {
+        "view": "side",
+        "path": "/images/VH-930/side.jpg",
+        "license": "CC0 (http://creativecommons.org/publicdomain/zero/1.0/deed.en)",
+        "attribution": "Saiphani02",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Honda_Amaze_India_Side_View.jpg"
+      }
+    }
+  },
+  "VH-931": {
+    "vid": "VH-931",
+    "make": "Tata Motors",
+    "model": "Tata Motors Nexon",
+    "views": {}
+  },
+  "VH-932": {
+    "vid": "VH-932",
+    "make": "Maruti Suzuki",
+    "model": "Maruti Suzuki Brezza",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-932/primary.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Rishavnandi08",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2021_Maruti_Suzuki_Vitara_Brezza_VXI.jpg"
+      },
+      "front": {
+        "view": "front",
+        "path": "/images/VH-932/front.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Rishavnandi08",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2021_Maruti_Suzuki_Vitara_Brezza_VXI.jpg"
+      },
+      "rear": {
+        "view": "rear",
+        "path": "/images/VH-932/rear.png",
+        "license": "CC BY 3.0 (https://creativecommons.org/licenses/by/3.0)",
+        "attribution": "DriveSpark",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2022_Maruti_Suzuki_Brezza_ZXi%2B_(India)_rear_view_01.png"
+      },
+      "interior": {
+        "view": "interior",
+        "path": "/images/VH-932/interior.png",
+        "license": "CC BY 3.0 (https://creativecommons.org/licenses/by/3.0)",
+        "attribution": "DriveSpark",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2022_Maruti_Suzuki_Brezza_ZXi%2B_(India)_interior.png"
+      }
+    }
+  },
+  "VH-933": {
+    "vid": "VH-933",
+    "make": "Kia",
+    "model": "Kia Seltos",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-933/primary.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Ethan Llamas",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2022_Kia_Seltos_(gray,_front).jpg"
+      },
+      "front": {
+        "view": "front",
+        "path": "/images/VH-933/front.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Ethan Llamas",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2022_Kia_Seltos_(gray,_front).jpg"
+      },
+      "rear": {
+        "view": "rear",
+        "path": "/images/VH-933/rear.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Ethan Llamas",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2022_Kia_Seltos_(gray,_rear).jpg"
+      },
+      "interior": {
+        "view": "interior",
+        "path": "/images/VH-933/interior.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Dinkun Chen",
+        "source_url": "https://commons.wikimedia.org/wiki/File:KIA_SELTOS_(SP2)_CHINA_VERSION_INTERIOR.jpg"
+      }
+    }
+  },
+  "VH-934": {
+    "vid": "VH-934",
+    "make": "Toyota",
+    "model": "Toyota Innova Hycross",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-934/primary.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Ethan Llamas",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2014_Toyota_Innova_2.5_J_in_Silver_Metallic,_front_right.jpg"
+      },
+      "front": {
+        "view": "front",
+        "path": "/images/VH-934/front.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Ethan Llamas",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2014_Toyota_Innova_2.5_J_in_Silver_Metallic,_front_right.jpg"
+      },
+      "rear": {
+        "view": "rear",
+        "path": "/images/VH-934/rear.jpg",
+        "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)",
+        "attribution": "Mohammed Hamad",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Toyota_Innova_GCC_rear.jpg"
+      }
+    }
+  },
+  "VH-935": {
+    "vid": "VH-935",
+    "make": "Mahindra",
+    "model": "Mahindra XUV700",
+    "views": {
+      "primary": {
+        "view": "primary",
+        "path": "/images/VH-935/primary.png",
+        "license": "CC BY 3.0 (https://creativecommons.org/licenses/by/3.0)",
+        "attribution": "DriveSpark",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2021_Mahindra_XUV700_2.2_AX7_(India)_front_view.png"
+      },
+      "front": {
+        "view": "front",
+        "path": "/images/VH-935/front.png",
+        "license": "CC BY 3.0 (https://creativecommons.org/licenses/by/3.0)",
+        "attribution": "DriveSpark",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2021_Mahindra_XUV700_2.2_AX7_(India)_front_view.png"
+      },
+      "rear": {
+        "view": "rear",
+        "path": "/images/VH-935/rear.png",
+        "license": "CC BY 3.0 (https://creativecommons.org/licenses/by/3.0)",
+        "attribution": "DriveSpark",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2021_Mahindra_XUV700_2.2_AX7_(India)_rear_view.png"
+      },
+      "interior": {
+        "view": "interior",
+        "path": "/images/VH-935/interior.png",
+        "license": "CC BY 3.0 (https://creativecommons.org/licenses/by/3.0)",
+        "attribution": "DriveSpark",
+        "source_url": "https://commons.wikimedia.org/wiki/File:2021_Mahindra_XUV700_2.2_AX7_(India)_interior.png"
+      }
+    }
+  },
+  "VH-936": {
+    "vid": "VH-936",
+    "make": "BMW",
+    "model": "BMW 3 Series / Gran Limousine",
+    "views": {}
+  }
+}

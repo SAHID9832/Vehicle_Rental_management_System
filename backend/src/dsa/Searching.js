@@ -15,16 +15,21 @@ function linearSearchVehicles(vehicles, query) {
 
   for (let i = 0; i < vehicles.length; i++) {
     const v = vehicles[i];
+    const name = (v.name || '').toLowerCase();
     const make = (v.make || v.brand || '').toLowerCase();
     const model = (v.model || '').toLowerCase();
     const reg = (v.registration_number || v.vehicle_id || '').toLowerCase();
 
-    const match = make.includes(searchTerm) || model.includes(searchTerm) || reg.includes(searchTerm);
+    const match =
+      name.includes(searchTerm) ||
+      make.includes(searchTerm) ||
+      model.includes(searchTerm) ||
+      reg.includes(searchTerm);
 
     comparisons.push({
       step: i + 1,
       index: i,
-      vehicle: `${v.make || v.brand} ${v.model} (${v.registration_number || v.vehicle_id})`,
+      vehicle: `${v.name || `${v.make || v.brand} ${v.model}`} (${v.registration_number || v.vehicle_id})`,
       match,
     });
 

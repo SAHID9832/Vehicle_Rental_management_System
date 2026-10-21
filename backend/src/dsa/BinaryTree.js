@@ -18,6 +18,31 @@ class BinaryTree {
     this.root = null;
   }
 
+  insert(val) {
+    const node = val instanceof TreeNode ? val : new TreeNode(val.id ?? val.key ?? val, val.name ?? val.value ?? val, val);
+    if (!this.root) {
+      this.root = node;
+      return node;
+    }
+    const queue = [this.root];
+    while (queue.length > 0) {
+      const current = queue.shift();
+      if (!current.left) {
+        current.left = node;
+        return node;
+      } else {
+        queue.push(current.left);
+      }
+      if (!current.right) {
+        current.right = node;
+        return node;
+      } else {
+        queue.push(current.right);
+      }
+    }
+    return node;
+  }
+
   preorder(node = this.root, result = []) {
     if (!node) return result;
     result.push({ key: node.key, value: node.value, ...node.data });

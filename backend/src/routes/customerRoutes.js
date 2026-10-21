@@ -14,5 +14,6 @@ router.get('/', verifyToken, requireRole('Admin', 'Manager', 'Agent'), customerC
 router.get('/:id', verifyToken, requireRole('Admin', 'Manager', 'Agent'), customerController.getById);
 router.post('/', verifyToken, requireRole('Admin', 'Manager', 'Agent'), customerController.create);
 router.put('/:id', verifyToken, requireRole('Admin', 'Manager', 'Agent'), customerController.update);
+router.delete('/:id', verifyToken, requireRole('Admin'), customerController.remove);
 
 module.exports = router;

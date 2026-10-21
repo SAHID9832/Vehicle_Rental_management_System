@@ -7,7 +7,7 @@ export default function HelpPage() {
       title: 'Booking & Eligibility',
       faqs: [
         {
-          q: 'Who can rent a vehicle from Vektor?',
+          q: 'Who can rent a vehicle from Movo?',
           a: 'Any individual aged 21 years or older holding a valid unexpired Indian Driving License (or International Driving Permit for foreign nationals) and a government-issued photo ID (Aadhaar Card, Passport, or Voter ID).',
         },
         {
@@ -20,8 +20,8 @@ export default function HelpPage() {
       title: 'Pricing & Security Deposits',
       faqs: [
         {
-          q: 'How does the stack-based pricing evaluation work?',
-          a: 'We evaluate rental pricing via an arithmetic expression stack: (Rental Days × Daily Rate) − Applicable Discounts + Extra Hub Surcharges. Days are evaluated in 24-hour cycles.',
+          q: 'How does the pricing evaluation work?',
+          a: 'We evaluate rental pricing transparently: (Rental Days × Daily Rate) − Applicable Discounts + Extra Hub Surcharges. Days are evaluated in 24-hour cycles.',
         },
         {
           q: 'When is the security deposit refunded?',
@@ -33,12 +33,12 @@ export default function HelpPage() {
       title: 'Hubs & Multi-Branch Network',
       faqs: [
         {
-          q: 'Can I pick up in Indiranagar and return at Kempegowda Airport?',
-          a: 'Yes. Our 5 Bengaluru hubs are fully connected via our branch network graph. Simply select different pickup and return locations when booking.',
+          q: 'Can I pick up in one city and return at another hub (e.g. Indiranagar to Airport or Mumbai to Pune)?',
+          a: 'Yes. Our 70+ hubs across 25+ Indian states and union territories are connected via our national highway network. Simply select your desired pickup and return hubs when booking.',
         },
         {
-          q: 'What are the operating hours of Vektor hubs?',
-          a: 'Airport hub operates 24/7. City hubs (MG Road, Indiranagar, Whitefield, Electronic City) operate from 6:00 AM to 11:00 PM daily.',
+          q: 'What are the operating hours of Movo hubs?',
+          a: 'All airport hubs (Bengaluru KIAL, Mumbai CSMIA, Delhi IGI, Goa Dabolim, etc.) operate 24/7. City hubs operate from 6:00 AM to 11:00 PM daily.',
         },
       ],
     },
@@ -111,7 +111,7 @@ export default function HelpPage() {
         <div>
           <h2 className="text-xl font-bold tracking-tight">Need Immediate Assistance?</h2>
           <p className="text-xs text-slate-400 mt-1">
-            Our Bengaluru fleet support desk is available to assist you.
+            Our 24x7 Pan-India fleet support desk is available to assist you nationwide.
           </p>
         </div>
 

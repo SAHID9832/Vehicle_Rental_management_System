@@ -17,6 +17,8 @@ async function verifySystem() {
   console.log('  VEKTOR RENTALS — SYSTEM & DSA VERIFICATION');
   console.log('======================================================\n');
 
+  let hasError = false;
+
   // 1. Database Connection Check
   console.log('1. Checking MySQL Database Connection...');
   let connection;
@@ -42,6 +44,7 @@ async function verifySystem() {
     console.log(`   ✓ Booking Records:     ${bookings[0].count}`);
   } catch (err) {
     console.error('   ✗ Database Error:', err.message);
+    hasError = true;
   } finally {
     if (connection) await connection.end();
   }
@@ -57,6 +60,7 @@ async function verifySystem() {
     console.log('   ✓ All backend unit tests passed.');
   } catch (err) {
     console.error('   ✗ Backend tests failed:', err.stdout || err.message);
+    hasError = true;
   }
 
   // 3. Project Structure Summary
@@ -69,8 +73,14 @@ async function verifySystem() {
   console.log('   ✓ frontend/src/hooks/          -> Reusable React custom hooks');
 
   console.log('\n======================================================');
-  console.log('  STATUS: SYSTEM FULLY STRUCTURED, HEALTHY & OPERATIONAL');
-  console.log('======================================================\n');
+  if (hasError) {
+    console.log('  STATUS: VERIFICATION ENCOUNTERED ERRORS');
+    console.log('======================================================\n');
+    process.exit(1);
+  } else {
+    console.log('  STATUS: ALL CHECKS & TESTS PASSED (100% OPERATIONAL)');
+    console.log('======================================================\n');
+  }
 }
 
 verifySystem().catch(console.error);

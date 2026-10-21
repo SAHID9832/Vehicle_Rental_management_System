@@ -40,16 +40,18 @@ export default function Navbar() {
         <div className="flex justify-between h-20 items-center">
           {/* Brand Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-11 h-11 rounded-2xl bg-teal-600 flex items-center justify-center text-white shadow-md shadow-teal-600/20 group-hover:bg-teal-700 transition-all duration-200">
-              <Car className="w-6 h-6 stroke-[2.2]" />
-            </div>
+            <img
+              src="/movo-logo.png"
+              alt="Movo Vehicle Rental"
+              className="h-12 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
+            />
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-2xl font-black tracking-tight text-gray-900">VEKTOR</span>
-                <span className="text-2xl font-extralight tracking-tight text-teal-600">RENTALS</span>
+                <span className="text-2xl font-black tracking-tight text-gray-900">MOVO</span>
+                <span className="text-2xl font-light tracking-tight text-teal-600">RENTAL</span>
               </div>
-              <p className="text-[10px] uppercase font-bold tracking-widest text-gray-600 -mt-1">
-                DSA Driven Fleet
+              <p className="text-[10px] uppercase font-bold tracking-widest text-teal-600 -mt-1">
+                Move Your Way
               </p>
             </div>
           </Link>
@@ -109,43 +111,66 @@ export default function Navbar() {
                       <p className="text-sm font-bold text-gray-900 truncate">{user?.email}</p>
                     </div>
 
-                    {isAdmin && (
-                      <Link
-                        to="/admin"
-                        onClick={() => setProfileDropdownOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-teal-600 font-medium"
-                      >
-                        <LayoutDashboard className="w-4 h-4 text-gray-400" />
-                        Admin Dashboard
-                      </Link>
+                    {isAdmin ? (
+                      <>
+                        <Link
+                          to="/admin"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-indigo-700 hover:bg-indigo-50 font-bold"
+                        >
+                          <LayoutDashboard className="w-4 h-4 text-indigo-600" />
+                          Admin Control Center
+                        </Link>
+                        <Link
+                          to="/admin/vehicles"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs text-gray-700 hover:bg-gray-50"
+                        >
+                          Fleet Management
+                        </Link>
+                        <Link
+                          to="/admin/customers"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs text-gray-700 hover:bg-gray-50"
+                        >
+                          Customer Directory
+                        </Link>
+                        <Link
+                          to="/admin/settings"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs text-gray-700 hover:bg-gray-50"
+                        >
+                          Site Governance
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          to="/my-bookings"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-teal-600 font-medium"
+                        >
+                          <Calendar className="w-4 h-4 text-gray-400" />
+                          My Bookings
+                        </Link>
+                        <Link
+                          to="/rental-history"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-teal-600 font-medium"
+                        >
+                          <History className="w-4 h-4 text-gray-400" />
+                          Rental History
+                        </Link>
+                        <Link
+                          to="/profile"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-teal-600 font-medium"
+                        >
+                          <User className="w-4 h-4 text-gray-400" />
+                          My Profile
+                        </Link>
+                      </>
                     )}
-
-                    <Link
-                      to="/my-bookings"
-                      onClick={() => setProfileDropdownOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-teal-600 font-medium"
-                    >
-                      <Calendar className="w-4 h-4 text-gray-400" />
-                      My Bookings
-                    </Link>
-
-                    <Link
-                      to="/rental-history"
-                      onClick={() => setProfileDropdownOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-teal-600 font-medium"
-                    >
-                      <History className="w-4 h-4 text-gray-400" />
-                      Rental History
-                    </Link>
-
-                    <Link
-                      to="/profile"
-                      onClick={() => setProfileDropdownOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-teal-600 font-medium"
-                    >
-                      <User className="w-4 h-4 text-gray-400" />
-                      My Profile
-                    </Link>
 
                     <div className="border-t border-gray-100 my-1"></div>
 
@@ -160,18 +185,24 @@ export default function Navbar() {
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5">
+                <Link
+                  to="/auth?role=admin"
+                  className="px-3 py-1.5 rounded-lg text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-colors"
+                >
+                  Admin Login
+                </Link>
                 <Link
                   to="/auth"
-                  className="px-4 py-2 text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors"
+                  className="px-3.5 py-2 text-xs font-semibold text-gray-700 hover:text-gray-900 transition-colors"
                 >
-                  Sign In
+                  Customer Sign In
                 </Link>
                 <Link
                   to="/auth?mode=register"
-                  className="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm transition-all shadow-sm shadow-teal-600/20"
+                  className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs transition-all shadow-sm shadow-teal-600/20"
                 >
-                  Get Started
+                  Register
                 </Link>
               </div>
             )}

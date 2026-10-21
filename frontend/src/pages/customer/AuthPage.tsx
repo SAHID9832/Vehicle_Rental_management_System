@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
-import { Car, Lock, Mail, User, Phone, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react';
+import { Car, ArrowRight, ShieldCheck, User, ShieldAlert } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 
@@ -10,10 +10,14 @@ export default function AuthPage() {
   const { login, register, isAuthenticated, isAdmin } = useAuth();
 
   const [isRegister, setIsRegister] = useState(searchParams.get('mode') === 'register');
+  const roleParam = searchParams.get('role');
+  const [selectedRole, setSelectedRole] = useState<'Customer' | 'Admin'>(
+    roleParam === 'admin' ? 'Admin' : 'Customer'
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   // Sign In State
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(() => (roleParam === 'admin' ? 'admin@vektor.in' : ''));
   const [password, setPassword] = useState('');
 
   // Register State
@@ -21,24 +25,53 @@ export default function AuthPage() {
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [drivingLicense, setDrivingLicense] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
 
   useEffect(() => {
     if (isAuthenticated) {
       if (isAdmin) {
-        navigate('/admin');
+        navigate('/admin', { replace: true });
       } else {
-        navigate('/');
+        navigate('/', { replace: true });
       }
     }
   }, [isAuthenticated, isAdmin, navigate]);
+
+  const handleRoleSwitch = (role: 'Customer' | 'Admin') => {
+    setSelectedRole(role);
+    if (!isRegister) {
+      if (role === 'Admin') {
+        if (!email || email.includes('gmail.com')) setEmail('admin@vektor.in');
+      } else {
+        if (email === 'admin@vektor.in') setEmail('');
+      }
+    }
+  };
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await login(email, password);
-      toast.success('Signed in successfully!');
-      navigate('/');
+      const loggedUser = await login(email, password);
+      const isUserAdmin = loggedUser?.role === 'Admin' || loggedUser?.role === 'Manager' || loggedUser?.role === 'Agent';
+
+      if (selectedRole === 'Admin') {
+        if (!isUserAdmin) {
+          toast.error('This account is registered as a Customer. Please switch to the Customer Portal tab to sign in.');
+          setIsLoading(false);
+          return;
+        }
+        toast.success(`Welcome Administrator, ${loggedUser.name || 'Admin'}!`);
+        navigate('/admin', { replace: true });
+      } else {
+        if (isUserAdmin) {
+          toast.success(`Welcome, ${loggedUser.name}! Opening Admin Operations Center.`);
+          navigate('/admin', { replace: true });
+        } else {
+          toast.success(`Welcome back, ${loggedUser.name}!`);
+          navigate('/', { replace: true });
+        }
+      }
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Invalid email or password.');
     } finally {
@@ -50,16 +83,19 @@ export default function AuthPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await register({
+      const newUser = await register({
         email,
         password,
         first_name: firstName,
         last_name: lastName,
-        phone,
+        phone: phone || (selectedRole === 'Admin' ? '08041234567' : '9876543210'),
+        role: selectedRole,
         driving_license: drivingLicense,
+        date_of_birth: dateOfBirth || '1998-01-01',
       });
-      toast.success('Account created successfully!');
-      navigate('/');
+      const isNewAdmin = newUser?.role === 'Admin';
+      toast.success(`${isNewAdmin ? 'Administrator' : 'Customer'} account created successfully!`);
+      navigate(isNewAdmin ? '/admin' : '/', { replace: true });
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Registration failed.');
     } finally {
@@ -67,62 +103,68 @@ export default function AuthPage() {
     }
   };
 
-  // Quick Demo Logins for Academic Evaluation
-  const fillDemoAccount = (demoEmail: string, demoPass: string) => {
-    setIsRegister(false);
-    setEmail(demoEmail);
-    setPassword(demoPass);
-  };
-
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+      <div className="max-w-md w-full space-y-6">
         {/* Brand header */}
         <div className="text-center space-y-2">
-          <Link to="/" className="inline-flex items-center gap-2 group">
-            <div className="w-12 h-12 rounded-2xl bg-teal-600 flex items-center justify-center text-white shadow-md shadow-teal-600/20 group-hover:bg-teal-700 transition-all">
-              <Car className="w-7 h-7 stroke-[2.2]" />
-            </div>
+          <Link to="/" className="inline-flex flex-col items-center gap-1 group">
+            <img
+              src="/movo-logo.png"
+              alt="Movo Vehicle Rental"
+              className="h-16 w-auto object-contain transition-transform group-hover:scale-105"
+            />
+            <p className="text-[10px] uppercase font-bold tracking-widest text-teal-600">
+              Move Your Way
+            </p>
           </Link>
           <h2 className="text-3xl font-black text-gray-900 tracking-tight">
-            {isRegister ? 'Join Vektor Rentals' : 'Welcome to Vektor'}
+            {isRegister
+              ? `Register as ${selectedRole}`
+              : `${selectedRole} Sign In`}
           </h2>
           <p className="text-xs text-gray-600">
-            {isRegister
-              ? 'Create a customer account to reserve vehicles and manage trips'
-              : 'Sign in to access your bookings, invoices, and vehicle fleet'}
+            {selectedRole === 'Admin'
+              ? (isRegister
+                  ? 'Register a new system administrator with full site control'
+                  : 'Access site governance, fleet management, and settings')
+              : (isRegister
+                  ? 'Create a customer account to reserve vehicles anytime'
+                  : 'Sign in to access your bookings, invoices, and profile')}
           </p>
         </div>
 
-        {/* Demo Credentials Helper Box (Academic Evaluation) */}
-        <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-100 space-y-2.5">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-900">
-            <Sparkles className="w-4 h-4 text-indigo-600" />
-            <span>Academic Evaluation Demo Accounts</span>
-          </div>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <button
-              type="button"
-              onClick={() => fillDemoAccount('admin@vektor.in', 'Admin@123')}
-              className="p-2 rounded-xl bg-white border border-indigo-200 hover:border-indigo-400 text-left transition-colors shadow-xs"
-            >
-              <span className="font-bold text-indigo-950 block">System Admin</span>
-              <span className="text-[10px] text-gray-600 block">admin@vektor.in</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => fillDemoAccount('arjun@gmail.com', 'Password@123')}
-              className="p-2 rounded-xl bg-white border border-indigo-200 hover:border-indigo-400 text-left transition-colors shadow-xs"
-            >
-              <span className="font-bold text-indigo-950 block">Customer</span>
-              <span className="text-[10px] text-gray-600 block">arjun@gmail.com</span>
-            </button>
-          </div>
+        {/* Role Selection Options: Customer vs Admin */}
+        <div className="bg-gray-100 p-1.5 rounded-2xl flex gap-1.5">
+          <button
+            type="button"
+            onClick={() => handleRoleSwitch('Customer')}
+            className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+              selectedRole === 'Customer'
+                ? 'bg-white text-teal-700 shadow-sm border border-teal-100'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <User className="w-4 h-4" />
+            <span>Customer Portal</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleRoleSwitch('Admin')}
+            className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+              selectedRole === 'Admin'
+                ? 'bg-white text-indigo-700 shadow-sm border border-indigo-100'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <ShieldCheck className="w-4 h-4 text-indigo-600" />
+            <span>Administrator</span>
+          </button>
         </div>
 
         {/* Auth Card */}
-        <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
-          {/* Toggle Tab */}
+        <div className="bg-white p-7 sm:p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
+          {/* Action Tabs: Sign In vs Register */}
           <div className="flex rounded-xl bg-gray-100 p-1">
             <button
               type="button"
@@ -140,7 +182,7 @@ export default function AuthPage() {
                 isRegister ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              Register
+              Register New
             </button>
           </div>
 
@@ -155,7 +197,7 @@ export default function AuthPage() {
                     required
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Arjun"
+                    placeholder={selectedRole === 'Admin' ? 'Admin' : 'Arjun'}
                     className="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none"
                   />
                 </div>
@@ -166,7 +208,7 @@ export default function AuthPage() {
                     required
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Sharma"
+                    placeholder={selectedRole === 'Admin' ? 'Officer' : 'Sharma'}
                     className="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none"
                   />
                 </div>
@@ -179,7 +221,7 @@ export default function AuthPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
+                  placeholder={selectedRole === 'Admin' ? 'new.admin@vektor.in' : 'customer@example.com'}
                   className="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 />
               </div>
@@ -203,28 +245,47 @@ export default function AuthPage() {
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="9876543210"
+                  placeholder={selectedRole === 'Admin' ? '08041234567' : '9876543210'}
                   className="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-700">Driving License Number</label>
-                <input
-                  type="text"
-                  value={drivingLicense}
-                  onChange={(e) => setDrivingLicense(e.target.value)}
-                  placeholder="KA-01 2023 1234567"
-                  className="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none"
-                />
-              </div>
+              {selectedRole === 'Customer' && (
+                <>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-700">Date of Birth</label>
+                    <input
+                      type="date"
+                      required
+                      value={dateOfBirth}
+                      onChange={(e) => setDateOfBirth(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-700">Driving License Number</label>
+                    <input
+                      type="text"
+                      value={drivingLicense}
+                      onChange={(e) => setDrivingLicense(e.target.value)}
+                      placeholder="KA-01 2023 1234567"
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                    />
+                  </div>
+                </>
+              )}
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-bold text-xs shadow-sm shadow-teal-600/30 flex items-center justify-center gap-2 transition-all mt-4"
+                className={`w-full py-3 rounded-xl text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all mt-4 ${
+                  selectedRole === 'Admin'
+                    ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/30'
+                    : 'bg-teal-600 hover:bg-teal-700 shadow-teal-600/30'
+                }`}
               >
-                <span>{isLoading ? 'Creating Account...' : 'Register Account'}</span>
+                <span>{isLoading ? 'Creating Account...' : `Register as ${selectedRole}`}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
@@ -232,13 +293,15 @@ export default function AuthPage() {
             /* Sign In Form */
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-700">Email Address</label>
+                <label className="text-xs font-bold text-gray-700">
+                  {selectedRole === 'Admin' ? 'Admin Email Address' : 'Customer Email Address'}
+                </label>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@vektor.in"
+                  placeholder={selectedRole === 'Admin' ? 'admin@vektor.in' : 'customer@example.com'}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 />
               </div>
@@ -258,9 +321,13 @@ export default function AuthPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-bold text-xs shadow-sm shadow-teal-600/30 flex items-center justify-center gap-2 transition-all mt-4"
+                className={`w-full py-3 rounded-xl text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all mt-4 ${
+                  selectedRole === 'Admin'
+                    ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/30'
+                    : 'bg-teal-600 hover:bg-teal-700 shadow-teal-600/30'
+                }`}
               >
-                <span>{isLoading ? 'Signing In...' : 'Sign In to Account'}</span>
+                <span>{isLoading ? 'Signing In...' : `Sign In as ${selectedRole}`}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>

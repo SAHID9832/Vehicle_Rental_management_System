@@ -4,6 +4,7 @@ const { success, error, paginated } = require('../utils/response');
 
 /**
  * GET /api/maintenance
+ * Query maintenance_records
  */
 const getAll = async (req, res) => {
   try {
@@ -18,16 +19,18 @@ const getAll = async (req, res) => {
     const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
     const [countResult] = await pool.query(
-      `SELECT COUNT(*) AS total FROM maintenance m ${whereClause}`,
+      `SELECT COUNT(*) AS total FROM maintenance_records m ${whereClause}`,
       params
     );
     const total = countResult[0].total;
 
     const [records] = await pool.query(
-      `SELECT m.*, v.make, v.model, v.registration_number, b.name AS branch_name
-       FROM maintenance m
+      `SELECT m.*,
+              v.name AS vehicle_name, v.brand, v.model, v.vehicle_id,
+              b.name AS branch_name, b.city AS branch_city
+       FROM maintenance_records m
        JOIN vehicles v ON v.id = m.vehicle_id
-       LEFT JOIN branches b ON b.id = v.branch_id
+       LEFT JOIN branches b ON b.id = m.branch_id
        ${whereClause}
        ORDER BY m.scheduled_date DESC
        LIMIT ? OFFSET ?`,
@@ -37,7 +40,7 @@ const getAll = async (req, res) => {
     return paginated(res, records, total, page, limit);
   } catch (err) {
     console.error('Maintenance getAll error:', err);
-    return error(res, 'Failed to fetch maintenance records.', 500);
+    return error(res, 'Failed to fetch maintenance records: ' + err.message, 500);
   }
 };
 
@@ -57,13 +60,15 @@ const create = async (req, res) => {
       maintenance_type,
       description,
       scheduled_date,
+      cost = 0,
       estimated_cost,
+      performed_by,
       service_provider,
-      notes,
+      branch_id,
     } = req.body;
 
     // Verify vehicle exists
-    const [vehicles] = await pool.query('SELECT id, status FROM vehicles WHERE id = ?', [vehicle_id]);
+    const [vehicles] = await pool.query('SELECT id, status, branch_id FROM vehicles WHERE id = ?', [vehicle_id]);
     if (vehicles.length === 0) {
       return error(res, 'Vehicle not found.', 404);
     }
@@ -72,20 +77,23 @@ const create = async (req, res) => {
       return error(res, 'Cannot schedule maintenance for a vehicle that is currently rented.', 400);
     }
 
+    const assignedBranch = branch_id || vehicles[0].branch_id;
+    const finalCost = parseFloat(cost || estimated_cost) || 0;
+    const finalProvider = performed_by || service_provider || 'Authorized Service Station';
+
     const [result] = await pool.query(
-      `INSERT INTO maintenance
-        (vehicle_id, maintenance_type, description, scheduled_date, estimated_cost,
-         service_provider, status, notes, created_by, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, 'Scheduled', ?, ?, NOW(), NOW())`,
+      `INSERT INTO maintenance_records
+        (vehicle_id, maintenance_type, description, cost, scheduled_date,
+         performed_by, branch_id, status, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'Scheduled', NOW())`,
       [
         vehicle_id,
         maintenance_type,
-        description || null,
-        scheduled_date,
-        estimated_cost || null,
-        service_provider || null,
-        notes || null,
-        req.user.id,
+        description || 'Periodic maintenance and inspection',
+        finalCost,
+        scheduled_date || new Date().toISOString().split('T')[0],
+        finalProvider,
+        assignedBranch,
       ]
     );
 
@@ -96,8 +104,8 @@ const create = async (req, res) => {
     );
 
     const [newRecord] = await pool.query(
-      `SELECT m.*, v.make, v.model, v.registration_number
-       FROM maintenance m
+      `SELECT m.*, v.name AS vehicle_name, v.brand, v.model, v.vehicle_id
+       FROM maintenance_records m
        JOIN vehicles v ON v.id = m.vehicle_id
        WHERE m.id = ?`,
       [result.insertId]
@@ -106,7 +114,7 @@ const create = async (req, res) => {
     return success(res, newRecord[0], 'Maintenance scheduled successfully.', 201);
   } catch (err) {
     console.error('Maintenance create error:', err);
-    return error(res, 'Failed to schedule maintenance.', 500);
+    return error(res, 'Failed to schedule maintenance: ' + err.message, 500);
   }
 };
 
@@ -117,114 +125,111 @@ const update = async (req, res) => {
   try {
     const maintenanceId = req.params.id;
 
-    const [existing] = await pool.query('SELECT * FROM maintenance WHERE id = ?', [maintenanceId]);
+    const [existing] = await pool.query('SELECT * FROM maintenance_records WHERE id = ?', [maintenanceId]);
     if (existing.length === 0) {
       return error(res, 'Maintenance record not found.', 404);
-    }
-
-    if (existing[0].status === 'Completed') {
-      return error(res, 'Cannot edit a completed maintenance record.', 400);
     }
 
     const {
       maintenance_type,
       description,
       scheduled_date,
+      completed_date,
+      cost,
       estimated_cost,
+      performed_by,
       service_provider,
-      notes,
       status,
+      branch_id,
     } = req.body;
 
+    const finalCost = cost !== undefined ? parseFloat(cost) : (estimated_cost !== undefined ? parseFloat(estimated_cost) : null);
+    const finalProvider = performed_by || service_provider || null;
+
     await pool.query(
-      `UPDATE maintenance SET
+      `UPDATE maintenance_records SET
         maintenance_type = COALESCE(?, maintenance_type),
         description = COALESCE(?, description),
         scheduled_date = COALESCE(?, scheduled_date),
-        estimated_cost = COALESCE(?, estimated_cost),
-        service_provider = COALESCE(?, service_provider),
-        notes = COALESCE(?, notes),
+        completed_date = COALESCE(?, completed_date),
+        cost = COALESCE(?, cost),
+        performed_by = COALESCE(?, performed_by),
         status = COALESCE(?, status),
-        updated_at = NOW()
+        branch_id = COALESCE(?, branch_id)
        WHERE id = ?`,
       [
         maintenance_type || null,
         description || null,
         scheduled_date || null,
-        estimated_cost || null,
-        service_provider || null,
-        notes || null,
+        completed_date || null,
+        finalCost,
+        finalProvider,
         status || null,
+        branch_id || null,
         maintenanceId,
       ]
     );
 
+    // If marked Completed, return vehicle to Available
+    if (status === 'Completed') {
+      await pool.query(
+        "UPDATE vehicles SET status = 'Available', updated_at = NOW() WHERE id = ?",
+        [existing[0].vehicle_id]
+      );
+    }
+
     const [updated] = await pool.query(
-      `SELECT m.*, v.make, v.model, v.registration_number
-       FROM maintenance m
+      `SELECT m.*, v.name AS vehicle_name, v.brand, v.model, v.vehicle_id
+       FROM maintenance_records m
        JOIN vehicles v ON v.id = m.vehicle_id
        WHERE m.id = ?`,
       [maintenanceId]
     );
 
-    return success(res, updated[0], 'Maintenance record updated.');
+    return success(res, updated[0], 'Maintenance record updated successfully.');
   } catch (err) {
     console.error('Maintenance update error:', err);
-    return error(res, 'Failed to update maintenance record.', 500);
+    return error(res, 'Failed to update maintenance record: ' + err.message, 500);
   }
 };
 
 /**
  * PUT /api/maintenance/:id/complete
- * Mark maintenance as completed, restore vehicle availability
  */
 const complete = async (req, res) => {
   try {
     const maintenanceId = req.params.id;
 
-    const [existing] = await pool.query('SELECT * FROM maintenance WHERE id = ?', [maintenanceId]);
+    const [existing] = await pool.query('SELECT * FROM maintenance_records WHERE id = ?', [maintenanceId]);
     if (existing.length === 0) {
       return error(res, 'Maintenance record not found.', 404);
     }
 
-    const maintenance = existing[0];
-
-    if (maintenance.status === 'Completed') {
-      return error(res, 'Maintenance is already completed.', 400);
-    }
-
-    const { actual_cost, completion_notes } = req.body;
+    const { actual_cost, cost, notes } = req.body;
+    const finalCost = parseFloat(actual_cost || cost) || existing[0].cost;
 
     await pool.query(
-      `UPDATE maintenance SET
+      `UPDATE maintenance_records SET
         status = 'Completed',
-        actual_cost = COALESCE(?, estimated_cost),
-        completion_notes = ?,
-        completed_date = NOW(),
-        completed_by = ?,
-        updated_at = NOW()
+        completed_date = CURDATE(),
+        cost = ?,
+        description = CONCAT(description, COALESCE(?, ''))
        WHERE id = ?`,
-      [actual_cost || null, completion_notes || null, req.user.id, maintenanceId]
+      [finalCost, notes ? ` [Notes: ${notes}]` : '', maintenanceId]
     );
 
-    // Restore vehicle to Available
+    // Restore vehicle status to Available
     await pool.query(
       "UPDATE vehicles SET status = 'Available', updated_at = NOW() WHERE id = ?",
-      [maintenance.vehicle_id]
+      [existing[0].vehicle_id]
     );
 
-    const [updated] = await pool.query(
-      `SELECT m.*, v.make, v.model, v.registration_number
-       FROM maintenance m
-       JOIN vehicles v ON v.id = m.vehicle_id
-       WHERE m.id = ?`,
-      [maintenanceId]
-    );
+    const [updated] = await pool.query('SELECT * FROM maintenance_records WHERE id = ?', [maintenanceId]);
 
-    return success(res, updated[0], 'Maintenance completed. Vehicle is now available.');
+    return success(res, updated[0], 'Maintenance marked as completed and vehicle made Available.');
   } catch (err) {
     console.error('Maintenance complete error:', err);
-    return error(res, 'Failed to complete maintenance.', 500);
+    return error(res, 'Failed to complete maintenance: ' + err.message, 500);
   }
 };
 

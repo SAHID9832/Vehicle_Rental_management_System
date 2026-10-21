@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   Calendar,
@@ -44,6 +44,17 @@ export default function BookingPage() {
   // Validation & Availability State
   const [availabilityError, setAvailabilityError] = useState<string>('');
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
+
+  // Group branches by state for Pan-India routing
+  const groupedBranches = useMemo(() => {
+    const groups: { [state: string]: Branch[] } = {};
+    branches.forEach((b) => {
+      const s = b.state || 'Other';
+      if (!groups[s]) groups[s] = [];
+      groups[s].push(b);
+    });
+    return groups;
+  }, [branches]);
 
   useEffect(() => {
     async function loadData() {
@@ -239,12 +250,16 @@ export default function BookingPage() {
                   value={pickupBranchId}
                   onChange={(e) => setPickupBranchId(e.target.value)}
                   required
-                  className="w-full px-3.5 py-3 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none bg-white"
+                  className="w-full px-3.5 py-3 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none bg-white text-gray-800"
                 >
-                  {branches.map((b) => (
-                    <option key={b.id} value={b.id}>
-                      {b.name} ({b.city})
-                    </option>
+                  {Object.entries(groupedBranches).map(([state, branchList]) => (
+                    <optgroup key={state} label={state}>
+                      {branchList.map((b) => (
+                        <option key={b.id} value={b.id}>
+                          {b.city}: {b.name}
+                        </option>
+                      ))}
+                    </optgroup>
                   ))}
                 </select>
               </div>
@@ -259,12 +274,16 @@ export default function BookingPage() {
                   value={returnBranchId}
                   onChange={(e) => setReturnBranchId(e.target.value)}
                   required
-                  className="w-full px-3.5 py-3 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none bg-white"
+                  className="w-full px-3.5 py-3 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none bg-white text-gray-800"
                 >
-                  {branches.map((b) => (
-                    <option key={b.id} value={b.id}>
-                      {b.name} ({b.city})
-                    </option>
+                  {Object.entries(groupedBranches).map(([state, branchList]) => (
+                    <optgroup key={state} label={state}>
+                      {branchList.map((b) => (
+                        <option key={b.id} value={b.id}>
+                          {b.city}: {b.name}
+                        </option>
+                      ))}
+                    </optgroup>
                   ))}
                 </select>
               </div>

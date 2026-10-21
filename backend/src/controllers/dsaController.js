@@ -19,7 +19,7 @@ const {
 const getVehicleLinkedList = async (req, res) => {
   try {
     const [vehicles] = await pool.query(
-      `SELECT id, make, model, registration_number, status, daily_rate, created_at
+      `SELECT id, vehicle_id, name, brand, model, status, daily_rate, created_at
        FROM vehicles
        ORDER BY created_at ASC`
     );
@@ -31,8 +31,8 @@ const getVehicleLinkedList = async (req, res) => {
     const nodes = rawNodes.map((item) => ({
       node_id: item.node_id,
       vehicle_id: item.data.id,
-      name: `${item.data.make} ${item.data.model}`,
-      registration_number: item.data.registration_number,
+      name: item.data.name || `${item.data.brand} ${item.data.model}`,
+      registration_number: item.data.vehicle_id,
       status: item.data.status,
       daily_rate: item.data.daily_rate,
       data: item.data,
@@ -63,8 +63,8 @@ const getRecentOperationsStack = async (req, res) => {
                 WHEN r.status = 'Completed' THEN 'RETURN'
                 ELSE 'PICKUP'
               END AS operation_type,
-              v.make, v.model, v.registration_number,
-              c.name AS customer_name,
+              v.name AS vehicle_name, v.brand, v.model, v.vehicle_id,
+              c.first_name, c.last_name,
               bk.booking_reference
        FROM rentals r
        JOIN vehicles v ON v.id = r.vehicle_id
@@ -83,8 +83,8 @@ const getRecentOperationsStack = async (req, res) => {
       is_top: index === 0,
       rental_id: item.id,
       operation: item.operation_type,
-      vehicle: `${item.make} ${item.model} (${item.registration_number})`,
-      customer: item.customer_name,
+      vehicle: item.vehicle_name || `${item.brand} ${item.model} (${item.vehicle_id})`,
+      customer: `${item.first_name || ''} ${item.last_name || ''}`.trim() || 'Customer',
       booking_reference: item.booking_reference,
       timestamp: item.timestamp,
     }));
@@ -108,14 +108,14 @@ const getRecentOperationsStack = async (req, res) => {
 const getWaitingQueue = async (req, res) => {
   try {
     const [queueItems] = await pool.query(
-      `SELECT * FROM waiting_queue ORDER BY created_at ASC`
+      `SELECT * FROM waiting_queue ORDER BY enqueued_at ASC`
     ).catch(() => [[]]);
 
     let queue = queueItems;
     if (queue.length === 0) {
       const [pendingBookings] = await pool.query(
         `SELECT bk.id, bk.booking_reference AS reference, bk.created_at,
-                c.name AS customer_name, v.make, v.model
+                c.first_name, c.last_name, v.name AS vehicle_name, v.brand, v.model
          FROM bookings bk
          JOIN customers c ON c.id = bk.customer_id
          JOIN vehicles v ON v.id = bk.vehicle_id
@@ -129,8 +129,8 @@ const getWaitingQueue = async (req, res) => {
         is_front: i === 0,
         id: b.id,
         reference: b.booking_reference || b.reference,
-        customer_name: b.customer_name,
-        vehicle: b.make ? `${b.make} ${b.model}` : 'N/A',
+        customer_name: `${b.first_name || ''} ${b.last_name || ''}`.trim() || 'Customer',
+        vehicle: b.vehicle_name || (b.brand ? `${b.brand} ${b.model}` : 'N/A'),
         enqueued_at: b.created_at,
       }));
 
@@ -176,15 +176,15 @@ const getBranchGraph = async (req, res) => {
     const [connections] = await pool.query(
       `SELECT bc.*, ba.name AS from_name, bb.name AS to_name
        FROM branch_connections bc
-       JOIN branches ba ON ba.id = bc.branch_id_a
-       JOIN branches bb ON bb.id = bc.branch_id_b`
+       JOIN branches ba ON ba.id = bc.from_branch_id
+       JOIN branches bb ON bb.id = bc.to_branch_id`
     );
 
     const graph = new Graph(false);
     branches.forEach((b) => graph.addNode(b.id, b));
     connections.forEach((c) => {
-      graph.addEdge(c.branch_id_a, c.branch_id_b, Number(c.distance_km), {
-        travel_time_min: c.travel_time_min,
+      graph.addEdge(c.from_branch_id, c.to_branch_id, Number(c.distance_km), {
+        travel_time_mins: c.travel_time_mins,
         to_name: c.to_name,
         from_name: c.from_name,
       });
@@ -196,21 +196,23 @@ const getBranchGraph = async (req, res) => {
     });
 
     connections.forEach((c) => {
-      adjacencyList[c.branch_id_a].push({
-        id: c.branch_id_b,
-        name: c.to_name,
-        weight: c.distance_km,
-        distance_km: c.distance_km,
-        travel_time_min: c.travel_time_min,
-        edge_id: c.id,
-      });
-      if (!c.is_directed) {
-        adjacencyList[c.branch_id_b].push({
-          id: c.branch_id_a,
+      if (adjacencyList[c.from_branch_id]) {
+        adjacencyList[c.from_branch_id].push({
+          id: c.to_branch_id,
+          name: c.to_name,
+          weight: c.distance_km,
+          distance_km: c.distance_km,
+          travel_time_mins: c.travel_time_mins,
+          edge_id: c.id,
+        });
+      }
+      if (adjacencyList[c.to_branch_id]) {
+        adjacencyList[c.to_branch_id].push({
+          id: c.from_branch_id,
           name: c.from_name,
           weight: c.distance_km,
           distance_km: c.distance_km,
-          travel_time_min: c.travel_time_min,
+          travel_time_mins: c.travel_time_mins,
           edge_id: c.id,
         });
       }
@@ -218,7 +220,7 @@ const getBranchGraph = async (req, res) => {
 
     return success(res, {
       structure: 'Undirected Weighted Graph',
-      description: 'Bengaluru rental hubs as vertices; road routes as weighted edges.',
+      description: 'Rental hubs as vertices; road routes as weighted edges.',
       node_count: branches.length,
       edge_count: connections.length,
       nodes: branches,
@@ -263,7 +265,7 @@ const evaluateRentalExpression = async (req, res) => {
 const getBSTVehicles = async (req, res) => {
   try {
     const [vehicles] = await pool.query(
-      `SELECT id, make, model, daily_rate, status
+      `SELECT id, name, brand, model, daily_rate, status
        FROM vehicles
        WHERE status != 'Inactive'
        ORDER BY id ASC`
@@ -275,7 +277,7 @@ const getBSTVehicles = async (req, res) => {
       structure: 'Binary Search Tree (BST)',
       description: 'Vehicles organised as a BST keyed on vehicle ID for O(log n) search.',
       total_nodes: vehicles.length,
-      insertion_order: vehicles.map((v) => ({ id: v.id, label: `${v.make} ${v.model}` })),
+      insertion_order: vehicles.map((v) => ({ id: v.id, label: v.name || `${v.brand} ${v.model}` })),
       root,
     });
   } catch (err) {
@@ -300,7 +302,7 @@ const runBFS = async (req, res) => {
     );
 
     const [connections] = await pool.query(
-      'SELECT branch_id_a, branch_id_b, distance_km FROM branch_connections'
+      'SELECT from_branch_id, to_branch_id, distance_km FROM branch_connections'
     );
 
     const graph = new Graph(false);
@@ -311,7 +313,7 @@ const runBFS = async (req, res) => {
     });
 
     connections.forEach((c) => {
-      graph.addEdge(c.branch_id_a, c.branch_id_b, Number(c.distance_km));
+      graph.addEdge(c.from_branch_id, c.to_branch_id, Number(c.distance_km));
     });
 
     const parsedStart = parseInt(startBranchId, 10);
@@ -350,7 +352,7 @@ const searchVehicles = async (req, res) => {
     }
 
     const [vehicles] = await pool.query(
-      `SELECT id, make, model, registration_number, daily_rate, status
+      `SELECT id, name, brand, model, vehicle_id, daily_rate, status
        FROM vehicles WHERE status != 'Inactive' ORDER BY id ASC`
     );
 
@@ -392,7 +394,7 @@ const sortVehicles = async (req, res) => {
     const { order = 'asc' } = req.body;
 
     const [vehicles] = await pool.query(
-      `SELECT id, make, model, daily_rate, status
+      `SELECT id, name, brand, model, daily_rate, status
        FROM vehicles WHERE status != 'Inactive'`
     );
 
@@ -404,8 +406,8 @@ const sortVehicles = async (req, res) => {
       order,
       sort_key: 'daily_rate',
       total_items: vehicles.length,
-      original: vehicles.map((v) => ({ id: v.id, name: `${v.make} ${v.model}`, daily_rate: v.daily_rate })),
-      sorted: sortResult.sorted.map((v) => ({ id: v.id, name: `${v.make} ${v.model}`, daily_rate: v.daily_rate })),
+      original: vehicles.map((v) => ({ id: v.id, name: v.name || `${v.brand} ${v.model}`, daily_rate: v.daily_rate })),
+      sorted: sortResult.sorted.map((v) => ({ id: v.id, name: v.name || `${v.brand} ${v.model}`, daily_rate: v.daily_rate })),
       steps: sortResult.steps,
     });
   } catch (err) {

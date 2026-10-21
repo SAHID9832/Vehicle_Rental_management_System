@@ -95,33 +95,109 @@ export function getErrorMessage(error: unknown): string {
   return 'An unexpected error occurred';
 }
 
+import vehicleImagesMap from '../data/vehicle_images_map.json';
+
+/** Get all available image views for a vehicle from the manifest map */
+export function getVehicleImageViews(vehicle?: {
+  name?: string;
+  brand?: string;
+  model?: string;
+  vehicle_id?: string;
+  image_url?: string;
+}): Array<{ view: string; path: string; license?: string; attribution?: string }> {
+  if (!vehicle) return [];
+  const map = vehicleImagesMap as Record<string, any>;
+
+  // Try matching by vehicle model/name
+  const name = (vehicle.name || '').toLowerCase();
+  const model = (vehicle.model || '').toLowerCase();
+  const brand = (vehicle.brand || '').toLowerCase();
+
+  for (const [vid, item] of Object.entries(map)) {
+    const itemModel = (item.model || '').toLowerCase();
+    const itemMake = (item.make || '').toLowerCase();
+
+    // Check match
+    const isMatch =
+      (model && itemModel.includes(model)) ||
+      (name && itemModel.split(' ').some((token: string) => token.length > 3 && name.includes(token))) ||
+      (name && name.includes(itemModel));
+
+    if (isMatch && item.views && Object.keys(item.views).length > 0) {
+      return Object.values(item.views);
+    }
+  }
+
+  // Fallback if vehicle has primary image_url
+  if (vehicle.image_url) {
+    return [{ view: 'primary', path: vehicle.image_url }];
+  }
+
+  return [];
+}
+
 /** Fallback vehicle imagery by category or model */
 export function getVehicleImageUrl(vehicle?: {
   image_url?: string;
   name?: string;
   category_name?: string;
   brand?: string;
+  model?: string;
+  vehicle_id?: string;
 }): string {
-  if (vehicle?.image_url && vehicle.image_url.startsWith('http')) {
+  // If vehicle has local or external image_url set, use it
+  if (vehicle?.image_url && (vehicle.image_url.startsWith('http') || vehicle.image_url.startsWith('/images/'))) {
     return vehicle.image_url;
   }
-  const name = (vehicle?.name || vehicle?.brand || '').toLowerCase();
+
+  // Check manifest map for matching vehicle
+  const views = getVehicleImageViews(vehicle);
+  if (views.length > 0) {
+    const primary = views.find(v => v.view === 'primary') || views[0];
+    if (primary && primary.path) {
+      return primary.path;
+    }
+  }
+
+  const name = (vehicle?.name || vehicle?.brand || vehicle?.model || '').toLowerCase();
   const cat = (vehicle?.category_name || '').toLowerCase();
 
+  // Hatchbacks & Compact Cars
   if (name.includes('swift')) return 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=800&q=80';
-  if (name.includes('i20')) return 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=80';
-  if (name.includes('city') || name.includes('honda')) return 'https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=800&q=80';
-  if (name.includes('innova')) return 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80';
-  if (name.includes('meteor') || name.includes('enfield') || cat.includes('motorcycle')) return 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=800&q=80';
-  if (name.includes('activa') || name.includes('pulsar')) return 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=800&q=80';
-  if (name.includes('seltos') || name.includes('creta')) return 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=800&q=80';
-  if (name.includes('nexon') || name.includes('tigor') || cat.includes('electric')) return 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=800&q=80';
-  if (name.includes('xuv') || name.includes('fortuner')) return 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80';
-  if (name.includes('bmw')) return 'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=800&q=80';
-  if (name.includes('mercedes') || cat.includes('luxury')) return 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=800&q=80';
-  if (name.includes('traveller') || cat.includes('van')) return 'https://images.unsplash.com/photo-1527786356703-4b100091cd2c?auto=format&fit=crop&w=800&q=80';
-  if (cat.includes('suv')) return 'https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=800&q=80';
+  if (name.includes('i20') || name.includes('baleno') || name.includes('altroz')) return 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=80';
+  if (name.includes('kwid') || name.includes('tiago')) return 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&w=800&q=80';
 
+  // Sedans
+  if (name.includes('dzire') || name.includes('aura') || name.includes('amaze')) return 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=800&q=80';
+  if (name.includes('city') || name.includes('verna') || name.includes('slavia') || name.includes('tigor')) return 'https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=800&q=80';
+
+  // Adventure & Heavy SUVs
+  if (name.includes('thar') || name.includes('jimny') || name.includes('gurkha')) return 'https://images.unsplash.com/photo-1533106497176-45ae19e68ba2?auto=format&fit=crop&w=800&q=80';
+  if (name.includes('scorpio') || name.includes('xuv') || name.includes('harrier') || name.includes('safari')) return 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80';
+  if (name.includes('fortuner') || name.includes('endeavour') || name.includes('gloster')) return 'https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=800&q=80';
+
+  // Compact & Mid SUVs
+  if (name.includes('creta') || name.includes('seltos') || name.includes('grand vitara') || name.includes('hyryder')) return 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?auto=format&fit=crop&w=800&q=80';
+  if (name.includes('brezza') || name.includes('venue') || name.includes('sonet') || name.includes('punch') || name.includes('fronx')) return 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=800&q=80';
+
+  // MPVs & Multi-Seaters
+  if (name.includes('innova') || name.includes('crysta') || name.includes('hycross') || name.includes('carens')) return 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80';
+  if (name.includes('ertiga') || name.includes('xl6') || name.includes('triber')) return 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80';
+  if (name.includes('traveller') || name.includes('urbania') || name.includes('van') || name.includes('winger') || cat.includes('van')) return 'https://images.unsplash.com/photo-1527786356703-4b100091cd2c?auto=format&fit=crop&w=800&q=80';
+
+  // Electric Vehicles
+  if (name.includes('nexon ev') || name.includes('curvv') || name.includes('ev6') || name.includes('ioniq') || cat.includes('electric')) return 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=800&q=80';
+
+  // Motorcycles & Scooters
+  if (name.includes('meteor') || name.includes('classic') || name.includes('bullet') || name.includes('hunter') || name.includes('enfield') || name.includes('himalayan')) return 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=800&q=80';
+  if (name.includes('pulsar') || name.includes('duke') || name.includes('apache') || name.includes('mt-15') || name.includes('r15')) return 'https://images.unsplash.com/photo-1558981408-db0ecd8a1ee4?auto=format&fit=crop&w=800&q=80';
+  if (name.includes('activa') || name.includes('jupiter') || name.includes('access') || name.includes('ntorq') || name.includes('ola') || name.includes('ather') || cat.includes('motorcycle')) return 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=800&q=80';
+
+  // Luxury Cars
+  if (name.includes('bmw') || name.includes('audi')) return 'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=800&q=80';
+  if (name.includes('mercedes') || name.includes('c-class') || name.includes('e-class') || cat.includes('luxury')) return 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=800&q=80';
+
+  if (cat.includes('suv')) return 'https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=800&q=80';
   return 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80';
 }
 

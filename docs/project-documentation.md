@@ -1,7 +1,7 @@
 # Vehicle Rental Management System Using Data Structures and Algorithms
 ## Comprehensive Academic Project Documentation (MCA Capstone)
 **Platform Name:** Vektor Rentals  
-**Author:** Senior Full-Stack & DSA Engineer  
+**Author:** Master of Computer Applications (MCA) Project Team  
 **Academic Year:** 2026  
 
 ---

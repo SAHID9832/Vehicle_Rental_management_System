@@ -11,14 +11,13 @@ import {
   ArrowRight,
   CheckCircle,
   HelpCircle,
-  Cpu,
   Car,
   ChevronRight,
 } from 'lucide-react';
 import { vehiclesApi, branchesApi } from '../../services/api';
 import { Vehicle, Branch, VehicleCategory } from '../../types';
 import VehicleCard from '../../components/vehicles/VehicleCard';
-import { formatINR, getMinPickupDateTime } from '../../utils';
+import { formatINR, getMinPickupDateTime, getVehicleImageViews } from '../../utils';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -34,6 +33,14 @@ export default function HomePage() {
   const [pickupDateTime, setPickupDateTime] = useState<string>('');
   const [returnDateTime, setReturnDateTime] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     async function loadData() {
@@ -52,7 +59,12 @@ export default function HomePage() {
         }
 
         setCategories(catRes.data.data || []);
-        setFeaturedVehicles(vehRes.data.data || []);
+        const rawVeh = vehRes.data.data?.data || vehRes.data.data || [];
+        const enriched = rawVeh.map((v: Vehicle) => ({
+          ...v,
+          image_views: getVehicleImageViews(v),
+        }));
+        setFeaturedVehicles(enriched);
 
         // Default dates: tomorrow 10am to day after tomorrow 10am
         const tomorrow = new Date(Date.now() + 24 * 3600 * 1000);
@@ -89,7 +101,7 @@ export default function HomePage() {
     {
       step: '01',
       title: 'Select City Hub',
-      desc: 'Choose from 5 connected hubs across Bengaluru with instant availability checks.',
+      desc: 'Choose from 24 connected hubs across India with instant availability checks.',
     },
     {
       step: '02',
@@ -114,8 +126,8 @@ export default function HomePage() {
       a: 'A valid Indian driving license, government photo ID (Aadhaar or Passport), and proof of address. Original documents must be presented at vehicle pickup.',
     },
     {
-      q: 'How does Vektor Rentals calculate rental charges?',
-      a: 'We evaluate rental pricing using an arithmetic stack expression: (Rental Days × Daily Rate) − Discounts + Additional Services. Duration is rounded up to the nearest 24-hour cycle.',
+      q: 'How does Movo calculate rental charges?',
+      a: 'We evaluate rental pricing using a clear arithmetic expression: (Rental Days × Daily Rate) − Discounts + Additional Services. Duration is rounded up to the nearest 24-hour cycle.',
     },
     {
       q: 'Can I pick up in Indiranagar and drop off at Kempegowda Airport (KIAL)?',
@@ -127,28 +139,101 @@ export default function HomePage() {
     },
   ];
 
+  // Group branches by state
+  const groupedBranches = React.useMemo(() => {
+    const map: Record<string, Branch[]> = {};
+    branches.forEach((b) => {
+      const stateName = b.state || 'Other';
+      if (!map[stateName]) map[stateName] = [];
+      map[stateName].push(b);
+    });
+    return map;
+  }, [branches]);
+
+  const handleStatePillClick = (stateName: string) => {
+    navigate(`/vehicles?state=${encodeURIComponent(stateName)}`);
+  };
+
   return (
     <div className="space-y-16 pb-16">
+      {/* Opening Logo Slide-In Animation (Towards Up Side) */}
+      {showSplash && (
+        <div
+          onClick={() => setShowSplash(false)}
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/95 backdrop-blur-md animate-movo-splash-overlay cursor-pointer select-none"
+        >
+          <div className="flex flex-col items-center animate-movo-splash-logo">
+            <div className="p-5 sm:p-7 rounded-3xl bg-white shadow-2xl shadow-blue-500/25 border border-white/40">
+              <img
+                src="/movo-logo.png"
+                alt="Movo Logo"
+                className="w-44 sm:w-56 h-auto object-contain"
+              />
+            </div>
+            <div className="mt-4 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-teal-400 animate-ping"></span>
+              <p className="text-xs font-bold uppercase tracking-widest text-teal-300">
+                Opening Movo...
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section with Search Panel */}
-      <section className="relative bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 text-white pt-12 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <section className="relative bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 text-white pt-10 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Subtle background glow */}
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute -bottom-10 left-10 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-10">
+          <div className="text-center max-w-3xl mx-auto mb-8">
+            {/* Prominent Movo Logo sliding towards up side */}
+            <div className="flex justify-center mb-6 animate-movo-slide-up">
+              <div className="inline-flex items-center gap-3.5 px-5 py-2.5 rounded-2xl bg-white shadow-xl shadow-teal-500/10 border border-white/20 transition-transform hover:scale-105 duration-200">
+                <img
+                  src="/movo-logo.png"
+                  alt="Movo Vehicle Rental"
+                  className="h-11 sm:h-13 w-auto object-contain"
+                />
+                <div className="text-left border-l border-gray-200 pl-3">
+                  <div className="flex items-center gap-1">
+                    <span className="text-xl font-black text-gray-900 tracking-tight">MOVO</span>
+                    <span className="text-xl font-light text-teal-600 tracking-tight">RENTAL</span>
+                  </div>
+                  <p className="text-[10px] uppercase font-bold tracking-widest text-teal-600 -mt-0.5">
+                    Move Your Way
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-bold uppercase tracking-wider mb-4">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Bengaluru's Algorithmic Fleet Network</span>
+              <span>Movo Pan-India Fleet Network</span>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight">
-              Smarter Drives, <br className="hidden sm:inline" />
-              <span className="text-teal-400">Algorithmic Efficiency.</span>
+              Rent Any Vehicle, <br className="hidden sm:inline" />
+              <span className="text-teal-400">Any State, Anywhere in India.</span>
             </h1>
             <p className="mt-4 text-base sm:text-lg text-slate-300 max-w-2xl mx-auto">
-              Book verified cars, SUVs, and bikes across Bengaluru. Optimized with Data Structures
-              and Algorithms for instant availability and the best rates.
+              Book India's favorite cars, SUVs, and bikes across 25+ states and 70+ major hubs nationwide with Movo.
+              Move your way with instant availability, clean verified fleet, and transparent pricing.
             </p>
+
+            {/* Quick State Pills */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
+              <span className="text-xs text-slate-400 font-semibold mr-1">Popular States:</span>
+              {['Goa', 'Maharashtra', 'Delhi', 'Karnataka', 'Rajasthan', 'Himachal Pradesh', 'Kerala'].map((st) => (
+                <button
+                  key={st}
+                  onClick={() => handleStatePillClick(st)}
+                  className="px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 hover:bg-teal-600 hover:text-white border border-slate-700 text-slate-300 transition-colors"
+                >
+                  📍 {st}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Prominent Booking Search Panel */}
@@ -159,17 +244,21 @@ export default function HomePage() {
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
                     <MapPin className="w-3.5 h-3.5 text-teal-600" />
-                    Pickup Hub
+                    Pickup Hub & State
                   </label>
                   <select
                     value={pickupBranch}
                     onChange={(e) => setPickupBranch(e.target.value)}
                     className="w-full px-3.5 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white text-sm font-medium focus:ring-2 focus:ring-teal-500 focus:outline-none"
                   >
-                    {branches.map((b) => (
-                      <option key={b.id} value={b.id}>
-                        {b.name}
-                      </option>
+                    {Object.entries(groupedBranches).map(([st, bList]) => (
+                      <optgroup key={st} label={`📍 ${st} (${bList.length} Hubs)`}>
+                        {bList.map((b) => (
+                          <option key={b.id} value={b.id}>
+                            {b.city}: {b.name}
+                          </option>
+                        ))}
+                      </optgroup>
                     ))}
                   </select>
                 </div>
@@ -178,17 +267,21 @@ export default function HomePage() {
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
                     <MapPin className="w-3.5 h-3.5 text-teal-600" />
-                    Return Hub
+                    Drop-off Hub
                   </label>
                   <select
                     value={returnBranch}
                     onChange={(e) => setReturnBranch(e.target.value)}
                     className="w-full px-3.5 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white text-sm font-medium focus:ring-2 focus:ring-teal-500 focus:outline-none"
                   >
-                    {branches.map((b) => (
-                      <option key={b.id} value={b.id}>
-                        {b.name}
-                      </option>
+                    {Object.entries(groupedBranches).map(([st, bList]) => (
+                      <optgroup key={st} label={`📍 ${st} (${bList.length} Hubs)`}>
+                        {bList.map((b) => (
+                          <option key={b.id} value={b.id}>
+                            {b.city}: {b.name}
+                          </option>
+                        ))}
+                      </optgroup>
                     ))}
                   </select>
                 </div>
@@ -248,7 +341,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
                 <div className="flex items-center gap-2 text-xs text-gray-600">
                   <CheckCircle className="w-4 h-4 text-emerald-500" />
-                  <span>Real-time overlap validation • Zero double-booking</span>
+                  <span>Real-time overlap validation • Interstate & local rentals supported</span>
                 </div>
 
                 <button
@@ -302,7 +395,7 @@ export default function HomePage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-2xl font-black text-gray-900 tracking-tight">Featured Available Vehicles</h2>
-            <p className="text-sm text-gray-600 mt-1">Ready for pickup at our top Bengaluru branches</p>
+            <p className="text-sm text-gray-600 mt-1">Ready for pickup at our top Pan-India hubs (Bengaluru, Mumbai, Delhi-NCR, Goa, Jaipur & more)</p>
           </div>
           <Link
             to="/vehicles"
@@ -328,42 +421,12 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* DSA Academic Callout Banner */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden shadow-xl">
-          <div className="absolute right-0 top-0 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-          <div className="relative z-10 max-w-2xl space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-400/20 text-teal-300 text-xs font-bold uppercase tracking-wider">
-              <Cpu className="w-3.5 h-3.5" />
-              <span>Interactive DSA Laboratory</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
-              See the Algorithms Behind Every Rental
-            </h2>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              Explore step-by-step executions of Singly Linked Lists, Stack-based pricing expressions,
-              FIFO waiting queues, BST lookups, Branch Graph BFS traversals, and Merge Sort price sorting.
-            </p>
-
-            <div className="pt-2">
-              <Link
-                to="/admin/dsa-lab"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-sm transition-all shadow-md shadow-teal-500/20"
-              >
-                <span>Open DSA Lab</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* How it Works */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
-            How Vektor Rentals Works
+            How Movo Works
           </h2>
           <p className="text-sm text-gray-600 mt-2">
             Streamlined 4-step workflow inspired by India's top mobility platforms
@@ -389,7 +452,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
-              Why Bengaluru Chooses Vektor
+              Why India Chooses Movo
             </h2>
             <p className="text-sm text-gray-600 mt-2">
               Engineered for absolute reliability, fair pricing, and rapid vehicle handover
@@ -415,7 +478,7 @@ export default function HomePage() {
               <h3 className="text-lg font-bold text-gray-900 mb-2">Transparent INR Pricing</h3>
               <p className="text-xs text-gray-600 leading-relaxed">
                 Zero surprise charges at return. Clear daily rates, refundable security deposits,
-                and upfront estimates calculated via stack logic.
+                and upfront estimates calculated transparently.
               </p>
             </div>
 
@@ -440,7 +503,7 @@ export default function HomePage() {
             Frequently Asked Questions
           </h2>
           <p className="text-sm text-gray-600 mt-2">
-            Everything you need to know about renting with Vektor
+            Everything you need to know about renting with Movo
           </p>
         </div>
 

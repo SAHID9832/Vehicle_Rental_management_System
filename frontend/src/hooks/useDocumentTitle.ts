@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 export function useDocumentTitle(title: string, prevailOnUnmount: boolean = false): void {
   useEffect(() => {
     const originalTitle = document.title;
-    document.title = title ? `${title} | Vektor Rentals` : 'Vektor Rentals — DSA Driven Fleet';
+    document.title = title ? `${title} | Movo` : 'Movo — Vehicle Rental | Move Your Way';
 
     return () => {
       if (!prevailOnUnmount) {

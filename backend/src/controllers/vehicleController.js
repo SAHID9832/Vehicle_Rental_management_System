@@ -12,6 +12,8 @@ const getAll = async (req, res) => {
       category,
       status,
       branch,
+      state,
+      city,
       fuel_type,
       transmission,
       min_price,
@@ -29,13 +31,15 @@ const getAll = async (req, res) => {
     if (category) { conditions.push('vc.name = ?'); params.push(category); }
     if (status) { conditions.push('v.status = ?'); params.push(status); }
     if (branch) { conditions.push('v.branch_id = ?'); params.push(branch); }
+    if (state) { conditions.push('b.state = ?'); params.push(state); }
+    if (city) { conditions.push('b.city = ?'); params.push(city); }
     if (fuel_type) { conditions.push('v.fuel_type = ?'); params.push(fuel_type); }
     if (transmission) { conditions.push('v.transmission = ?'); params.push(transmission); }
     if (min_price) { conditions.push('v.daily_rate >= ?'); params.push(parseFloat(min_price)); }
     if (max_price) { conditions.push('v.daily_rate <= ?'); params.push(parseFloat(max_price)); }
     if (search) {
-      conditions.push('(v.make LIKE ? OR v.model LIKE ? OR v.registration_number LIKE ?)');
-      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+      conditions.push('(v.name LIKE ? OR v.brand LIKE ? OR v.model LIKE ? OR v.vehicle_id LIKE ? OR b.city LIKE ? OR b.state LIKE ?)');
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
     }
 
     const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
@@ -52,7 +56,7 @@ const getAll = async (req, res) => {
     const total = countResult[0].total;
 
     const dataSql = `
-      SELECT v.*, vc.name AS category_name, b.name AS branch_name, b.city AS branch_city
+      SELECT v.*, vc.name AS category_name, b.name AS branch_name, b.city AS branch_city, b.state AS branch_state
       FROM vehicles v
       LEFT JOIN vehicle_categories vc ON v.category_id = vc.id
       LEFT JOIN branches b ON v.branch_id = b.id
@@ -107,46 +111,80 @@ const create = async (req, res) => {
     }
 
     const {
+      vehicle_id,
       registration_number,
+      name,
       make,
+      brand,
       model,
-      year,
+      year = new Date().getFullYear(),
       category_id,
       branch_id,
       daily_rate,
-      fuel_type,
-      transmission,
-      seating_capacity,
-      color,
+      weekly_rate,
+      monthly_rate,
+      security_deposit = 5000,
+      fuel_type = 'Petrol',
+      transmission = 'Manual',
+      seating_capacity = 5,
+      color = 'White',
       mileage,
+      engine_cc,
       description,
+      features,
       image_url,
       status = 'Available',
     } = req.body;
 
-    // Check duplicate registration number
+    const code = (vehicle_id || registration_number || `VEK-${Date.now().toString().slice(-6)}`).toUpperCase().trim();
+    const finalBrand = brand || make || 'Maruti Suzuki';
+    const finalModel = model || 'Vehicle';
+    const finalName = name || `${finalBrand} ${finalModel}`;
+    const rate = parseFloat(daily_rate) || 1200;
+
+    // Check duplicate vehicle_id code
     const [existing] = await pool.query(
-      'SELECT id FROM vehicles WHERE registration_number = ?',
-      [registration_number]
+      'SELECT id FROM vehicles WHERE vehicle_id = ?',
+      [code]
     );
     if (existing.length > 0) {
-      return error(res, 'A vehicle with this registration number already exists.', 409);
+      return error(res, 'A vehicle with this ID/Code already exists.', 409);
     }
 
     const [result] = await pool.query(
       `INSERT INTO vehicles
-        (registration_number, make, model, year, category_id, branch_id, daily_rate,
-         fuel_type, transmission, seating_capacity, color, mileage, description, image_url, status, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+        (vehicle_id, name, model, brand, year, category_id, branch_id, color, fuel_type,
+         transmission, seating_capacity, daily_rate, weekly_rate, monthly_rate,
+         security_deposit, image_url, description, features, status, mileage, engine_cc,
+         created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
-        registration_number, make, model, year, category_id, branch_id, daily_rate,
-        fuel_type, transmission, seating_capacity || null, color || null,
-        mileage || null, description || null, image_url || null, status,
+        code,
+        finalName,
+        finalModel,
+        finalBrand,
+        parseInt(year, 10),
+        parseInt(category_id, 10),
+        parseInt(branch_id, 10),
+        color,
+        fuel_type,
+        transmission,
+        parseInt(seating_capacity, 10),
+        rate,
+        weekly_rate ? parseFloat(weekly_rate) : (rate * 6),
+        monthly_rate ? parseFloat(monthly_rate) : (rate * 24),
+        parseFloat(security_deposit),
+        image_url || null,
+        description || null,
+        features ? JSON.stringify(features) : null,
+        status,
+        mileage ? parseFloat(mileage) : null,
+        engine_cc ? parseInt(engine_cc, 10) : null,
       ]
     );
 
     const [newVehicle] = await pool.query(
-      `SELECT v.*, vc.name AS category_name, b.name AS branch_name
+      `SELECT v.*, vc.name AS category_name, b.name AS branch_name, b.city AS branch_city, b.state AS branch_state
        FROM vehicles v
        LEFT JOIN vehicle_categories vc ON v.category_id = vc.id
        LEFT JOIN branches b ON v.branch_id = b.id
@@ -157,7 +195,7 @@ const create = async (req, res) => {
     return success(res, newVehicle[0], 'Vehicle created successfully.', 201);
   } catch (err) {
     console.error('Vehicle create error:', err);
-    return error(res, 'Failed to create vehicle.', 500);
+    return error(res, 'Failed to create vehicle: ' + err.message, 500);
   }
 };
 
@@ -173,56 +211,106 @@ const update = async (req, res) => {
 
     const vehicleId = req.params.id;
 
-    const [existing] = await pool.query('SELECT id FROM vehicles WHERE id = ?', [vehicleId]);
+    const [existing] = await pool.query('SELECT * FROM vehicles WHERE id = ?', [vehicleId]);
     if (existing.length === 0) {
       return error(res, 'Vehicle not found.', 404);
     }
 
     const {
-      registration_number, make, model, year, category_id, branch_id, daily_rate,
-      fuel_type, transmission, seating_capacity, color, mileage, description, image_url, status,
+      vehicle_id,
+      registration_number,
+      name,
+      make,
+      brand,
+      model,
+      year,
+      category_id,
+      branch_id,
+      daily_rate,
+      weekly_rate,
+      monthly_rate,
+      security_deposit,
+      fuel_type,
+      transmission,
+      seating_capacity,
+      color,
+      mileage,
+      engine_cc,
+      description,
+      features,
+      image_url,
+      status,
     } = req.body;
 
-    // Check duplicate registration number (excluding current vehicle)
-    if (registration_number) {
+    const newCode = (vehicle_id || registration_number)?.toUpperCase()?.trim();
+    if (newCode) {
       const [dupCheck] = await pool.query(
-        'SELECT id FROM vehicles WHERE registration_number = ? AND id != ?',
-        [registration_number, vehicleId]
+        'SELECT id FROM vehicles WHERE vehicle_id = ? AND id != ?',
+        [newCode, vehicleId]
       );
       if (dupCheck.length > 0) {
-        return error(res, 'Another vehicle with this registration number already exists.', 409);
+        return error(res, 'Another vehicle with this ID/Code already exists.', 409);
       }
     }
 
+    const current = existing[0];
+    const finalBrand = brand || make || current.brand;
+    const finalModel = model || current.model;
+    const finalName = name || (brand || model ? `${finalBrand} ${finalModel}` : current.name);
+
     await pool.query(
       `UPDATE vehicles SET
-        registration_number = COALESCE(?, registration_number),
-        make = COALESCE(?, make),
+        vehicle_id = COALESCE(?, vehicle_id),
+        name = COALESCE(?, name),
+        brand = COALESCE(?, brand),
         model = COALESCE(?, model),
         year = COALESCE(?, year),
         category_id = COALESCE(?, category_id),
         branch_id = COALESCE(?, branch_id),
         daily_rate = COALESCE(?, daily_rate),
+        weekly_rate = COALESCE(?, weekly_rate),
+        monthly_rate = COALESCE(?, monthly_rate),
+        security_deposit = COALESCE(?, security_deposit),
         fuel_type = COALESCE(?, fuel_type),
         transmission = COALESCE(?, transmission),
         seating_capacity = COALESCE(?, seating_capacity),
         color = COALESCE(?, color),
         mileage = COALESCE(?, mileage),
+        engine_cc = COALESCE(?, engine_cc),
         description = COALESCE(?, description),
+        features = COALESCE(?, features),
         image_url = COALESCE(?, image_url),
         status = COALESCE(?, status),
         updated_at = NOW()
        WHERE id = ?`,
       [
-        registration_number || null, make || null, model || null, year || null,
-        category_id || null, branch_id || null, daily_rate || null, fuel_type || null,
-        transmission || null, seating_capacity || null, color || null, mileage || null,
-        description || null, image_url || null, status || null, vehicleId,
+        newCode || null,
+        finalName,
+        finalBrand,
+        finalModel,
+        year ? parseInt(year, 10) : null,
+        category_id ? parseInt(category_id, 10) : null,
+        branch_id ? parseInt(branch_id, 10) : null,
+        daily_rate ? parseFloat(daily_rate) : null,
+        weekly_rate ? parseFloat(weekly_rate) : null,
+        monthly_rate ? parseFloat(monthly_rate) : null,
+        security_deposit ? parseFloat(security_deposit) : null,
+        fuel_type || null,
+        transmission || null,
+        seating_capacity ? parseInt(seating_capacity, 10) : null,
+        color || null,
+        mileage ? parseFloat(mileage) : null,
+        engine_cc ? parseInt(engine_cc, 10) : null,
+        description || null,
+        features ? JSON.stringify(features) : null,
+        image_url || null,
+        status || null,
+        vehicleId,
       ]
     );
 
     const [updated] = await pool.query(
-      `SELECT v.*, vc.name AS category_name, b.name AS branch_name
+      `SELECT v.*, vc.name AS category_name, b.name AS branch_name, b.city AS branch_city, b.state AS branch_state
        FROM vehicles v
        LEFT JOIN vehicle_categories vc ON v.category_id = vc.id
        LEFT JOIN branches b ON v.branch_id = b.id
@@ -233,7 +321,7 @@ const update = async (req, res) => {
     return success(res, updated[0], 'Vehicle updated successfully.');
   } catch (err) {
     console.error('Vehicle update error:', err);
-    return error(res, 'Failed to update vehicle.', 500);
+    return error(res, 'Failed to update vehicle: ' + err.message, 500);
   }
 };
 
@@ -288,14 +376,15 @@ const getCategories = async (req, res) => {
 const checkAvailability = async (req, res) => {
   try {
     const vehicleId = req.params.id;
-    const { pickup_datetime, return_datetime } = req.query;
+    const pickup = req.query.pickup_datetime || req.query.pickup;
+    const dropoff = req.query.return_datetime || req.query.return;
 
-    if (!pickup_datetime || !return_datetime) {
-      return error(res, 'pickup_datetime and return_datetime are required.', 400);
+    if (!pickup || !dropoff) {
+      return error(res, 'pickup (or pickup_datetime) and return (or return_datetime) are required.', 400);
     }
 
     const [vehicle] = await pool.query(
-      'SELECT id, make, model, status, daily_rate FROM vehicles WHERE id = ?',
+      'SELECT id, name, brand, model, vehicle_id, status, daily_rate FROM vehicles WHERE id = ?',
       [vehicleId]
     );
 
@@ -305,6 +394,7 @@ const checkAvailability = async (req, res) => {
 
     if (vehicle[0].status === 'Inactive' || vehicle[0].status === 'Maintenance') {
       return success(res, {
+        is_available: false,
         available: false,
         reason: `Vehicle is currently ${vehicle[0].status.toLowerCase()}.`,
         vehicle: vehicle[0],
@@ -317,12 +407,13 @@ const checkAvailability = async (req, res) => {
        WHERE vehicle_id = ?
          AND status NOT IN ('Cancelled')
          AND NOT (return_datetime <= ? OR pickup_datetime >= ?)`,
-      [vehicleId, pickup_datetime, return_datetime]
+      [vehicleId, pickup, dropoff]
     );
 
     const available = overlapping.length === 0;
 
     return success(res, {
+      is_available: available,
       available,
       reason: available ? null : 'Vehicle is already booked for the requested dates.',
       vehicle: vehicle[0],
@@ -330,7 +421,7 @@ const checkAvailability = async (req, res) => {
     });
   } catch (err) {
     console.error('checkAvailability error:', err);
-    return error(res, 'Failed to check vehicle availability.', 500);
+    return error(res, 'Failed to check vehicle availability: ' + err.message, 500);
   }
 };
 

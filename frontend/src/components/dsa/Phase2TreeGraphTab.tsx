@@ -110,6 +110,46 @@ export const Phase2TreeGraphTab: React.FC<Phase2TreeGraphTabProps> = ({
           ))}
         </div>
 
+        {/* Visual Binary Tree SVG Diagram */}
+        <div className="p-4 rounded-2xl bg-slate-900 text-white space-y-2 overflow-x-auto">
+          <span className="text-[11px] font-bold text-teal-400 uppercase tracking-wider block">
+            Visual Binary Tree Node Hierarchy
+          </span>
+          <svg viewBox="0 0 500 180" className="w-full max-w-xl mx-auto h-44 text-xs font-bold">
+            {/* Branches */}
+            <line x1="250" y1="30" x2="140" y2="80" stroke="#0d9488" strokeWidth="2" />
+            <line x1="250" y1="30" x2="360" y2="80" stroke="#0d9488" strokeWidth="2" />
+            <line x1="140" y1="80" x2="80" y2="140" stroke="#0d9488" strokeWidth="2" />
+            <line x1="140" y1="80" x2="200" y2="140" stroke="#0d9488" strokeWidth="2" />
+            <line x1="360" y1="80" x2="300" y2="140" stroke="#0d9488" strokeWidth="2" />
+            <line x1="360" y1="80" x2="420" y2="140" stroke="#0d9488" strokeWidth="2" />
+
+            {/* Root Node */}
+            <circle cx="250" cy="30" r="18" fill="#0f766e" stroke="#14b8a6" strokeWidth="2" />
+            <text x="250" y="34" fill="#ffffff" textAnchor="middle" fontSize="10">Fleet</text>
+
+            {/* Level 1 Nodes */}
+            <circle cx="140" cy="80" r="18" fill="#1e293b" stroke="#0d9488" strokeWidth="2" />
+            <text x="140" y="84" fill="#5eead4" textAnchor="middle" fontSize="9">Sedans</text>
+
+            <circle cx="360" cy="80" r="18" fill="#1e293b" stroke="#0d9488" strokeWidth="2" />
+            <text x="360" y="84" fill="#5eead4" textAnchor="middle" fontSize="9">SUVs</text>
+
+            {/* Level 2 Nodes */}
+            <circle cx="80" cy="140" r="16" fill="#0f172a" stroke="#64748b" strokeWidth="1.5" />
+            <text x="80" y="144" fill="#e2e8f0" textAnchor="middle" fontSize="8">Economy</text>
+
+            <circle cx="200" cy="140" r="16" fill="#0f172a" stroke="#64748b" strokeWidth="1.5" />
+            <text x="200" y="144" fill="#e2e8f0" textAnchor="middle" fontSize="8">Luxury</text>
+
+            <circle cx="300" cy="140" r="16" fill="#0f172a" stroke="#64748b" strokeWidth="1.5" />
+            <text x="300" y="144" fill="#e2e8f0" textAnchor="middle" fontSize="8">Compact</text>
+
+            <circle cx="420" cy="140" r="16" fill="#0f172a" stroke="#64748b" strokeWidth="1.5" />
+            <text x="420" y="144" fill="#e2e8f0" textAnchor="middle" fontSize="8">7-Seater</text>
+          </svg>
+        </div>
+
         {/* Traversal Sequence Result */}
         {traversalResult && (
           <div className="p-5 rounded-2xl bg-gray-50 border border-gray-100 space-y-3">
@@ -248,6 +288,42 @@ export const Phase2TreeGraphTab: React.FC<Phase2TreeGraphTabProps> = ({
             <Play className="w-3.5 h-3.5 fill-current" />
             <span>Run BFS Traversal</span>
           </button>
+        </div>
+
+        {/* Visual Graph SVG Diagram */}
+        <div className="p-4 rounded-2xl bg-slate-900 text-white space-y-2 overflow-x-auto">
+          <span className="text-[11px] font-bold text-teal-400 uppercase tracking-wider block">
+            Visual Rental Hub Graph Topology
+          </span>
+          <svg viewBox="0 0 540 220" className="w-full max-w-xl mx-auto h-48 text-xs font-bold">
+            {/* Edges */}
+            <line x1="270" y1="110" x2="130" y2="60" stroke="#0d9488" strokeWidth="2" strokeDasharray="4 2" />
+            <line x1="270" y1="110" x2="410" y2="60" stroke="#0d9488" strokeWidth="2" strokeDasharray="4 2" />
+            <line x1="270" y1="110" x2="150" y2="170" stroke="#0d9488" strokeWidth="2" strokeDasharray="4 2" />
+            <line x1="270" y1="110" x2="390" y2="170" stroke="#0d9488" strokeWidth="2" strokeDasharray="4 2" />
+            <line x1="130" y1="60" x2="410" y2="60" stroke="#334155" strokeWidth="1.5" />
+            <line x1="150" y1="170" x2="390" y2="170" stroke="#334155" strokeWidth="1.5" />
+
+            {/* Central Node (City Centre) */}
+            <circle cx="270" cy="110" r="22" fill="#0f766e" stroke="#14b8a6" strokeWidth="3" />
+            <text x="270" y="114" fill="#ffffff" textAnchor="middle" fontSize="9">MG Road (1)</text>
+
+            {/* Airport (North) */}
+            <circle cx="130" cy="60" r="20" fill="#1e293b" stroke="#0d9488" strokeWidth="2" />
+            <text x="130" y="64" fill="#5eead4" textAnchor="middle" fontSize="8.5">KIAL (2)</text>
+
+            {/* Whitefield (East) */}
+            <circle cx="410" cy="60" r="20" fill="#1e293b" stroke="#0d9488" strokeWidth="2" />
+            <text x="410" y="64" fill="#5eead4" textAnchor="middle" fontSize="8.5">Whitefield (3)</text>
+
+            {/* Electronic City (South) */}
+            <circle cx="150" cy="170" r="20" fill="#1e293b" stroke="#0d9488" strokeWidth="2" />
+            <text x="150" y="174" fill="#5eead4" textAnchor="middle" fontSize="8.5">ECity (4)</text>
+
+            {/* Indiranagar (East-Central) */}
+            <circle cx="390" cy="170" r="20" fill="#1e293b" stroke="#0d9488" strokeWidth="2" />
+            <text x="390" y="174" fill="#5eead4" textAnchor="middle" fontSize="8.5">Indiranagar (5)</text>
+          </svg>
         </div>
 
         {/* BFS Output Display */}

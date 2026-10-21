@@ -8,8 +8,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
+  register: (data: RegisterData) => Promise<User>;
   logout: () => void;
   updateUser: (user: User) => void;
 }
@@ -20,6 +20,7 @@ interface RegisterData {
   first_name: string;
   last_name: string;
   phone: string;
+  role?: 'Customer' | 'Admin';
   address?: string;
   city?: string;
   state?: string;
@@ -37,13 +38,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Restore session from localStorage
   useEffect(() => {
-    const savedToken = localStorage.getItem('vektor_token');
-    const savedUser = localStorage.getItem('vektor_user');
+    const savedToken = localStorage.getItem('movo_token') || localStorage.getItem('vektor_token');
+    const savedUser = localStorage.getItem('movo_user') || localStorage.getItem('vektor_user');
     if (savedToken && savedUser) {
       try {
         setToken(savedToken);
         setUser(JSON.parse(savedUser));
       } catch {
+        localStorage.removeItem('movo_token');
+        localStorage.removeItem('movo_user');
         localStorage.removeItem('vektor_token');
         localStorage.removeItem('vektor_user');
       }
@@ -54,22 +57,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     const response = await authApi.login(email, password);
     const { token: newToken, user: newUser } = response.data.data;
+    localStorage.setItem('movo_token', newToken);
+    localStorage.setItem('movo_user', JSON.stringify(newUser));
     localStorage.setItem('vektor_token', newToken);
     localStorage.setItem('vektor_user', JSON.stringify(newUser));
     setToken(newToken);
     setUser(newUser);
+    return newUser as User;
   }, []);
 
   const register = useCallback(async (data: RegisterData) => {
     const response = await authApi.register(data);
     const { token: newToken, user: newUser } = response.data.data;
+    localStorage.setItem('movo_token', newToken);
+    localStorage.setItem('movo_user', JSON.stringify(newUser));
     localStorage.setItem('vektor_token', newToken);
     localStorage.setItem('vektor_user', JSON.stringify(newUser));
     setToken(newToken);
     setUser(newUser);
+    return newUser as User;
   }, []);
 
   const logout = useCallback(() => {
+    localStorage.removeItem('movo_token');
+    localStorage.removeItem('movo_user');
     localStorage.removeItem('vektor_token');
     localStorage.removeItem('vektor_user');
     setToken(null);
@@ -78,6 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateUser = useCallback((updatedUser: User) => {
     setUser(updatedUser);
+    localStorage.setItem('movo_user', JSON.stringify(updatedUser));
     localStorage.setItem('vektor_user', JSON.stringify(updatedUser));
   }, []);
 

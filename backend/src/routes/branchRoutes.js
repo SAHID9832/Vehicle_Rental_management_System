@@ -7,6 +7,7 @@ const { verifyToken, requireRole } = require('../middleware/auth');
 router.get('/connections', branchController.getConnections);
 router.post('/connections', verifyToken, requireRole('Admin', 'Manager'), branchController.addConnection);
 router.delete('/connections/:id', verifyToken, requireRole('Admin', 'Manager'), branchController.removeConnection);
+router.post('/sync-csv', verifyToken, requireRole('Admin'), branchController.syncCsv);
 
 // Branch CRUD
 router.get('/', branchController.getAll);

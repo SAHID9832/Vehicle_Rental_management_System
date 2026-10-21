@@ -58,6 +58,40 @@ class Stack {
 }
 
 /**
+ * Phase 1D: Shunting-Yard algorithm (Infix to Postfix)
+ */
+function infixToPostfix(infix) {
+  const precedence = { '+': 1, '-': 1, '*': 2, '/': 2 };
+  const output = [];
+  const opStack = [];
+
+  const tokens = infix.split(' ').filter((t) => t.trim());
+  for (const token of tokens) {
+    if (!isNaN(Number(token))) {
+      output.push(token);
+    } else if (token === '(') {
+      opStack.push(token);
+    } else if (token === ')') {
+      while (opStack.length && opStack[opStack.length - 1] !== '(') {
+        output.push(opStack.pop());
+      }
+      opStack.pop(); // remove '('
+    } else if (precedence[token]) {
+      while (
+        opStack.length &&
+        opStack[opStack.length - 1] !== '(' &&
+        precedence[opStack[opStack.length - 1]] >= precedence[token]
+      ) {
+        output.push(opStack.pop());
+      }
+      opStack.push(token);
+    }
+  }
+  while (opStack.length) output.push(opStack.pop());
+  return output.join(' ');
+}
+
+/**
  * Phase 1D: Stack-based arithmetic expression evaluator for rental pricing.
  * Expression: (days * dailyRate) - discount + additionalCharges
  */
@@ -67,46 +101,62 @@ function evaluateRentalCostExpression(days, dailyRate, discount = 0, additionalC
   const disc = parseFloat(discount);
   const extra = parseFloat(additionalCharges);
 
+  const infix = `${d} * ${r} - ${disc} + ${extra}`;
+  const postfix = infixToPostfix(infix);
+
+  const stack = new Stack();
   const steps = [];
-  const stack = [];
+  const tokens = postfix.split(' ').filter((t) => t.trim());
 
-  steps.push({ step: 1, action: 'PUSH days', value: d, stack: [d] });
-  stack.push(d);
+  tokens.forEach((token, index) => {
+    if (!isNaN(Number(token))) {
+      const num = Number(token);
+      stack.push(num);
+      steps.push({
+        step: index + 1,
+        token,
+        action: `PUSH ${token} onto stack`,
+        stack: stack.toArray().map((s) => s.value).reverse(),
+      });
+    } else {
+      const b = stack.pop();
+      const a = stack.pop();
+      let resVal = 0;
+      switch (token) {
+        case '+': resVal = a + b; break;
+        case '-': resVal = a - b; break;
+        case '*': resVal = a * b; break;
+        case '/': resVal = b !== 0 ? a / b : 0; break;
+        default: resVal = 0;
+      }
+      stack.push(resVal);
+      steps.push({
+        step: index + 1,
+        token,
+        action: `POP ${b} and ${a}, compute ${a} ${token} ${b} = ${resVal}, PUSH ${resVal}`,
+        stack: stack.toArray().map((s) => s.value).reverse(),
+        result: resVal,
+      });
+    }
+  });
 
-  steps.push({ step: 2, action: 'PUSH dailyRate', value: r, stack: [...stack, r] });
-  stack.push(r);
-
-  const subtotal = d * r;
-  stack.pop();
-  stack.pop();
-  stack.push(subtotal);
-  steps.push({ step: 3, action: 'MUL (days × dailyRate)', value: subtotal, stack: [...stack] });
-
-  stack.push(disc);
-  steps.push({ step: 4, action: 'PUSH discount', value: disc, stack: [...stack] });
-
-  const afterDiscount = subtotal - disc;
-  stack.pop();
-  stack.pop();
-  stack.push(afterDiscount);
-  steps.push({ step: 5, action: 'SUB (subtotal - discount)', value: afterDiscount, stack: [...stack] });
-
-  stack.push(extra);
-  steps.push({ step: 6, action: 'PUSH additionalCharges', value: extra, stack: [...stack] });
-
-  const total = afterDiscount + extra;
-  stack.pop();
-  stack.pop();
-  stack.push(total);
-  steps.push({ step: 7, action: 'ADD (afterDiscount + additionalCharges)', value: total, stack: [...stack] });
-
-  steps.push({ step: 8, action: 'POP result', value: total, stack: [] });
+  const finalTotal = stack.peek() !== null ? stack.pop() : 0;
+  const result = parseFloat(Math.max(0, finalTotal).toFixed(2));
 
   return {
-    expression: `(${d} × ${r}) - ${disc} + ${extra}`,
+    expression: infix,
     infix: '(days * dailyRate) - discount + additionalCharges',
+    postfix,
     inputs: { days: d, dailyRate: r, discount: disc, additionalCharges: extra },
-    result: parseFloat(Math.max(0, total).toFixed(2)),
+    breakdown: {
+      days: d,
+      dailyRate: r,
+      subtotal: d * r,
+      discount: disc,
+      additionalCharges: extra,
+      total: result,
+    },
+    result,
     steps,
   };
 }
@@ -114,5 +164,7 @@ function evaluateRentalCostExpression(days, dailyRate, discount = 0, additionalC
 module.exports = {
   StackNode,
   Stack,
+  infixToPostfix,
   evaluateRentalCostExpression,
 };
+

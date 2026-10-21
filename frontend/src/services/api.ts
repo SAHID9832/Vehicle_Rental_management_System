@@ -10,7 +10,7 @@ const api = axios.create({
 
 // Attach JWT on every request
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('vektor_token');
+  const token = localStorage.getItem('movo_token') || localStorage.getItem('vektor_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
@@ -20,6 +20,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      localStorage.removeItem('movo_token');
+      localStorage.removeItem('movo_user');
       localStorage.removeItem('vektor_token');
       localStorage.removeItem('vektor_user');
       window.location.href = '/auth';
@@ -36,7 +38,7 @@ export const authApi = {
     api.post('/auth/login', { email, password }),
   register: (data: {
     email: string; password: string; first_name: string; last_name: string;
-    phone: string; address?: string; city?: string; state?: string;
+    phone: string; role?: 'Customer' | 'Admin'; address?: string; city?: string; state?: string;
     pincode?: string; driving_license?: string; date_of_birth?: string;
   }) => api.post('/auth/register', data),
   me: () => api.get('/auth/me'),
@@ -65,6 +67,7 @@ export const customersApi = {
   getById: (id: number) => api.get(`/customers/${id}`),
   create: (data: unknown) => api.post('/customers', data),
   update: (id: number, data: unknown) => api.put(`/customers/${id}`, data),
+  delete: (id: number) => api.delete(`/customers/${id}`),
   getMyProfile: () => api.get('/customers/me/profile'),
   updateMyProfile: (data: unknown) => api.put('/customers/me/profile', data),
   getMyBookings: (params?: Record<string, unknown>) =>
@@ -74,7 +77,7 @@ export const customersApi = {
 
 // ─── Branches ─────────────────────────────────────────────────────────────
 export const branchesApi = {
-  getAll: () => api.get('/branches'),
+  getAll: (params?: Record<string, unknown>) => api.get('/branches', { params }),
   getById: (id: number) => api.get(`/branches/${id}`),
   create: (data: unknown) => api.post('/branches', data),
   update: (id: number, data: unknown) => api.put(`/branches/${id}`, data),
@@ -82,6 +85,7 @@ export const branchesApi = {
   getConnections: () => api.get('/branches/connections'),
   addConnection: (data: unknown) => api.post('/branches/connections', data),
   removeConnection: (id: number) => api.delete(`/branches/connections/${id}`),
+  syncCsv: () => api.post('/branches/sync-csv'),
 };
 
 // ─── Bookings ─────────────────────────────────────────────────────────────

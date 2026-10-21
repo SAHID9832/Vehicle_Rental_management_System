@@ -17,6 +17,14 @@ class SinglyLinkedList {
     this.length = 0;
   }
 
+  get size() {
+    return this.length;
+  }
+
+  deleteById(id) {
+    return this.deleteByVehicleId(id);
+  }
+
   insertAtHead(data) {
     const node = new LinkedListNode(data);
     if (!this.head) {

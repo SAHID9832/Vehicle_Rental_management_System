@@ -23,8 +23,18 @@ export default function VehicleCard({ vehicle, onBookNow }: VehicleCardProps) {
           alt={vehicle.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           onError={(e) => {
-            (e.target as HTMLImageElement).src =
-              'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80';
+            const target = e.target as HTMLImageElement;
+            const fallback = getVehicleImageUrl({
+              name: vehicle.name,
+              brand: vehicle.brand,
+              model: vehicle.model,
+              category_name: vehicle.category_name,
+            });
+            if (target.src !== fallback) {
+              target.src = fallback;
+            } else {
+              target.src = 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80';
+            }
           }}
         />
 
@@ -39,7 +49,12 @@ export default function VehicleCard({ vehicle, onBookNow }: VehicleCardProps) {
           </span>
         </div>
 
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 flex items-center gap-1.5">
+          {vehicle.image_views && vehicle.image_views.length > 1 && (
+            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-teal-600 text-white backdrop-blur-md shadow-xs">
+              {vehicle.image_views.length} Photos
+            </span>
+          )}
           <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-900/80 text-white backdrop-blur-md">
             {vehicle.vehicle_id}
           </span>
@@ -55,9 +70,14 @@ export default function VehicleCard({ vehicle, onBookNow }: VehicleCardProps) {
               {vehicle.category_name || 'Vehicle'}
             </span>
             {vehicle.branch_name && (
-              <span className="flex items-center gap-1 truncate max-w-[150px]">
-                <MapPin className="w-3 h-3 text-gray-400 shrink-0" />
-                {vehicle.branch_name}
+              <span
+                className="flex items-center gap-1 truncate max-w-[180px] font-medium text-slate-700"
+                title={`${vehicle.branch_name}${vehicle.branch_city ? `, ${vehicle.branch_city}` : ''}`}
+              >
+                <MapPin className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                <span className="truncate">
+                  {vehicle.branch_city ? `${vehicle.branch_city}: ` : ''}{vehicle.branch_name}
+                </span>
               </span>
             )}
           </div>

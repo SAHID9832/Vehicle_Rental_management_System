@@ -26,13 +26,13 @@ backend/node_modules/
 frontend/dist/
 frontend/build/
 
-# Environment files
+# Environment files and secrets
 .env
-backend/.env
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.test.local
-frontend/.env.production.local
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
 
 # Editor directories and files
 .vscode/*
